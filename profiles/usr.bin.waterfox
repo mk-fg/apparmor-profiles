@@ -40,7 +40,6 @@ profile /opt/waterfox-current/waterfox-current {
 
 	owner @{HOME}/.cache/waterfox/ rwk,
 	owner @{HOME}/.cache/waterfox/** rwkm,
-	owner @{HOME}/.cache/mesa_shader_cache/** rwk,
 
 	owner @{PROC}/@{pid}/fd/ r,
 	owner @{PROC}/@{pid}/{mountinfo,statm,smaps} r,

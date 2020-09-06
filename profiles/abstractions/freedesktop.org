@@ -43,4 +43,5 @@
   owner @{HOME}/.local/share/mime/**    mr,
 
   # xorg caches
-  owner @{HOME}/.cache/mesa/** mrw,
+  owner @{HOME}/.cache/mesa{,_shader_cache}/** mrw,
+  owner @{HOME}/.cache/thumbnails/** rw,

@@ -10,10 +10,11 @@ profile /usr/lib/brave/brave {
 	#include <abstractions/pulse>
 	#include <abstractions/gnome>
 	#include <abstractions/nameservice>
-	#include <abstractions/user-download>
+	#include <abstractions/freedesktop.org>
 	#include <abstractions/ssl-certs>
 	#include <abstractions/site/de>
 	#include <abstractions/dconf>
+	#include <abstractions/user-download>
 
 
 	### Main binary and sandboxing setup
@@ -40,7 +41,6 @@ profile /usr/lib/brave/brave {
 	owner @{HOME}/.cache/thumbnails/** rw,
 	owner @{HOME}/.{config,cache}/BraveSoftware/ rwk,
 	owner @{HOME}/.{config,cache}/BraveSoftware/** rwk,
-	owner @{HOME}/.cache/mesa_shader_cache/** rwk,
 
 	deny /usr/lib/brave/extensions/ rw,
 
