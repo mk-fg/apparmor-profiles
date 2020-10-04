@@ -19,6 +19,7 @@ profile /opt/waterfox-current/waterfox-current {
 	/opt/waterfox-current/waterfox-current cix, # tabs
 	@{HOME}/.waterfox/url-handler cUx, # dispatcher for magnet: and such
 
+	/ r,
 	/opt/waterfox-current/** rm,
 
 	/etc/mime.types r,
