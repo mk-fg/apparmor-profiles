@@ -37,8 +37,9 @@
 
 @{PROC}/asound/** rw,
 
-/usr/share/alsa/** r,
 /usr/share/sounds/** r,
+/usr/share/alsa/** r,
+/usr/share/alsa-card-profile/** r,
 
 owner @{HOME}/.esd_auth r,
 owner @{HOME}/.asoundrc r,
