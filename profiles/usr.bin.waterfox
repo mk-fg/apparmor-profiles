@@ -11,6 +11,7 @@ profile /opt/waterfox-current/waterfox-current {
 	#include <abstractions/fonts>
 	#include <abstractions/nameservice>
 	#include <abstractions/freedesktop.org>
+	#include <abstractions/xdg-desktop>
 	#include <abstractions/ssl-certs>
 	#include <abstractions/pulse>
 	#include <abstractions/dconf>
