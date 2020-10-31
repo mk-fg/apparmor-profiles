@@ -83,10 +83,6 @@ profile /usr/bin/chromium {
 		deny @{HOME}/.mozilla/firefox/ rw,
 		deny @{HOME}/.mozilla/firefox/** rw,
 
-		# StorageMonitorLinux for Media Gallery API - http://crbug.com/141229
-		deny /run/udev/data/** r,
-		deny /sys/class/*/ r,
-
 		# V4L2 video API
 		deny /dev/video* r,
 
@@ -117,13 +113,20 @@ profile /usr/bin/chromium {
 		# Device access stuff - should allow for GPU, but nothing else, ideally
 		/dev/ r,
 		/etc/udev/udev.conf r,
-		/sys/{bus,class}/ r,
+		/sys/{bus,class,class/hidraw}/ r,
 		/sys/bus/pci/devices/ r,
 		/sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class} r,
 		/sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config} r,
 		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
 		deny /dev/video* r,
 		deny /sys/devices/virtual/dmi/** r,
+
+		# U2F token, can be tested via https://webauthn.io/
+		/run/udev/data/* r,
+		/sys/devices/pci*/*/usb*/ r,
+		/sys/devices/pci*/*/usb*/**/{uevent,report_descriptor} r,
+		/sys/class/hidraw/hidraw* r,
+		/dev/hidraw* rw,
 
 		# Wildcard rule doesn't work here, as it overrides "/sys/bus/pci/devices/ r"
 		deny /sys/bus/{clockevents,dax,platform,pci_express,serio,event_source}/devices/ r,
