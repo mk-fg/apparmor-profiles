@@ -47,11 +47,7 @@ profile /usr/bin/chromium {
 		@{PROC}/sys/kernel/yama/ptrace_scope r,
 		deny ptrace, # triggers on xdg handlers
 
-		# Extensions leftover from inox profile
-		owner @{HOME}/.inoxunpack/ r,
-		owner @{HOME}/.inoxunpack/** r,
-		owner @{HOME}/.inoxunpack/*/Cached*.pak rwk,
-
+		/etc/os-release r,
 		/etc/chromium/** rk, # policies/managed and such
 		owner @{HOME}/.pki/nssdb/** rwk,
 		owner @{HOME}/.{config,cache}/chromium/ rwk,
@@ -87,6 +83,7 @@ profile /usr/bin/chromium {
 		/sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config} r,
 		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
 		deny /dev/video* r,
+		deny /sys/devices/virtual/dmi/** r,
 
 		# Other known device-query things:
 		#  - StorageMonitorLinux for Media Gallery API - http://crbug.com/141229
@@ -99,13 +96,6 @@ profile /usr/bin/chromium {
 		deny /sys/bus/{machinecheck,cpu,hdaudio,scsi,clocksource,hid,edac}/devices/ r,
 		deny /sys/bus/{pnp,usb,workqueue,virtio,container,acpi,i2c,snd_seq,mipi-dsi}/devices/ r,
 		deny /sys/bus/{mdio_bus,nvmem,wmi,usb-serial}/devices/ r,
-
-		# Site-local stuff
-		@{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
-
-		# URL handlers
-		owner @{HOME_BIN}/wrappers/xdg-open Ux,
-		owner @{HOME_BIN}/wrappers/leech_*.wrapper Ux,
 
 		# File selection dialogs
 		deny @{HOME} r,
@@ -122,6 +112,10 @@ profile /usr/bin/chromium {
 		# Weird mmap probes
 		deny @{HOME}/#[0-9]* m,
 		/tmp/#[0-9]* m,
+
+		# Site-local stuff
+		owner @{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
+		owner @{HOME}/.config/chromium/url-handler cUx, # dispatcher for magnet: and such
 
 		# All network
 		network inet dgram,
