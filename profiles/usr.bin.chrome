@@ -59,7 +59,7 @@ profile /usr/bin/chromium {
 
 		# Site-local stuff
 		owner @{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
-		owner @{HOME}/.config/chromium/url-handler cUx, # dispatcher for magnet: and such
+		owner @{HOME}/.config/chromium/Extensions/_bin/xdg-open cUx, # dispatcher for magnet: and such
 
 		/{run,dev}/shm/.org.chromium.Chromium.* rwkm,
 		/{run,dev}/shm/org.chromium.Chromium.shmem.* rwkm,
