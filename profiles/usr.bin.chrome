@@ -83,9 +83,6 @@ profile /usr/bin/chromium {
 		deny @{HOME}/.mozilla/firefox/ rw,
 		deny @{HOME}/.mozilla/firefox/** rw,
 
-		# V4L2 video API
-		deny /dev/video* r,
-
 		# Weird mmap probes
 		deny @{HOME}/#[0-9]* m,
 		/tmp/#[0-9]* m,
@@ -120,6 +117,7 @@ profile /usr/bin/chromium {
 		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
 		deny /dev/video* r,
 		deny /sys/devices/virtual/dmi/** r,
+		deny /sys/class/*/ r,
 
 		# U2F token, can be tested via https://webauthn.io/
 		/run/udev/data/* r,
