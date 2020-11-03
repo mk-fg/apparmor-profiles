@@ -60,7 +60,7 @@ profile /usr/bin/chromium {
 		deny @{HOME}/.config/chromium/BrowserMetrics* rw,
 
 		# Site-local stuff
-		owner @{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
+		@{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
 		owner @{HOME}/.config/chromium/Extensions/_bin/xdg-open cUx, # dispatcher for magnet: and such
 
 		@{HOME}/.local/share/.org.chromium.Chromium.* rwkm, # not sure what these are for, also shm?
@@ -117,10 +117,17 @@ profile /usr/bin/chromium {
 		/sys/bus/pci/devices/ r,
 		/sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class} r,
 		/sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config} r,
+		/sys/devices/pci[0-9:.]*/**/drm/ r,
 		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
 		deny /dev/video* r,
 		deny /sys/devices/virtual/dmi/** r,
 		deny /sys/class/*/ r,
+
+		# Wildcard rule doesn't work here, as it overrides "/sys/bus/pci/devices/ r"
+		deny /sys/bus/{clockevents,dax,platform,pci_express,serio,event_source}/devices/ r,
+		deny /sys/bus/{machinecheck,cpu,hdaudio,scsi,clocksource,hid,edac}/devices/ r,
+		deny /sys/bus/{pnp,usb,workqueue,virtio,container,acpi,i2c,snd_seq,mipi-dsi}/devices/ r,
+		deny /sys/bus/{mdio_bus,nvmem,wmi,usb-serial}/devices/ r,
 
 		# U2F token, can be tested via https://webauthn.io/
 		/run/udev/data/* r,
@@ -128,12 +135,6 @@ profile /usr/bin/chromium {
 		/sys/devices/pci*/*/usb*/**/{uevent,report_descriptor} r,
 		/sys/class/hidraw/hidraw* r,
 		/dev/hidraw* rw,
-
-		# Wildcard rule doesn't work here, as it overrides "/sys/bus/pci/devices/ r"
-		deny /sys/bus/{clockevents,dax,platform,pci_express,serio,event_source}/devices/ r,
-		deny /sys/bus/{machinecheck,cpu,hdaudio,scsi,clocksource,hid,edac}/devices/ r,
-		deny /sys/bus/{pnp,usb,workqueue,virtio,container,acpi,i2c,snd_seq,mipi-dsi}/devices/ r,
-		deny /sys/bus/{mdio_bus,nvmem,wmi,usb-serial}/devices/ r,
 
 
 		### Network
