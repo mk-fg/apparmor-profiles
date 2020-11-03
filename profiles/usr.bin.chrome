@@ -61,6 +61,7 @@ profile /usr/bin/chromium {
 		owner @{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
 		owner @{HOME}/.config/chromium/Extensions/_bin/xdg-open cUx, # dispatcher for magnet: and such
 
+		@{HOME}/.local/share/.org.chromium.Chromium.* rwkm, # not sure what these are for, also shm?
 		/{run,dev}/shm/.org.chromium.Chromium.* rwkm,
 		/{run,dev}/shm/org.chromium.Chromium.shmem.* rwkm,
 
