@@ -50,6 +50,8 @@ profile /usr/bin/chromium {
 		owner @{HOME}/.{config,cache}/chromium/ rwk,
 		owner @{HOME}/.{config,cache}/chromium/** rwk,
 
+		# Keep dedicated extension dir read-only, never use system-wide ones
+		audit deny @{HOME}/.config/chromium/Extensions/** w,
 		deny /usr/lib/chromium/extensions/ rw,
 
 		# Fills these paths with gigs of trash fast otherwise
