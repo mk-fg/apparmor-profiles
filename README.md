@@ -18,6 +18,10 @@ getting (or confirming) the rest from audit logs.
 Main doc on rule syntax:
 https://gitlab.com/apparmor/apparmor/wikis/AppArmor_Core_Policy_Reference
 
+I use apparmor_init script (under "scripts" dir) to load these profiles with
+some caching and "--override-policy-abi" option to avoid needing boilerplate
+for it in every file - they are intended to always work together anyway.
+
 ### Important note
 
 This is more of a "my configuration" repository, and profiles here are mostly

@@ -10,10 +10,11 @@ mkdir -p -m700 "$cache_dir"
 chown root: "$cache_dir"
 chmod 700 "$cache_dir"
 cache=( --cache-loc "$cache_dir" --write-cache )
+abi=( --override-policy-abi "$profiles_dir"/abstractions/abi )
 
 cd "$profiles_dir"
 while read p
-do apparmor_parser "${cache[@]}" -r "$p" >&2 || err=1
+do apparmor_parser "${cache[@]}" "${abi[@]}" -r "$p" >&2 || err=1
 done < "$enabled_conf"
 
 if [[ -e "$profiles_sysfs" ]]; then
