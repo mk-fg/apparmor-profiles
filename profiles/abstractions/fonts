@@ -17,9 +17,11 @@
   /usr/share/fonts/                     r,
   /usr/share/fonts/**                   mr,
 
-  /etc/fonts/**                         mr,
-  /usr/share/fontconfig/conf.avail/**   r,
-  /usr/share/fontconfig/conf.avail.*/**   r,
+  /etc/fonts/** mr,
+  /usr/share/fontconfig/conf.avail/ r,
+  /usr/share/fontconfig/conf.avail/** mr,
+  /usr/share/fontconfig/conf.avail.*/ r,
+  /usr/share/fontconfig/conf.avail.*/** mr,
 
   /var/cache/fonts/**                   mr,
   /var/cache/fontconfig/**              mr,
