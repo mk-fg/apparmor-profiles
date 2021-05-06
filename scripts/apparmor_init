@@ -2,6 +2,7 @@
 
 enabled_conf=/etc/apparmor/enabled.conf
 profiles_dir=/etc/apparmor.d
+profiles_dir_local=/etc/apparmor.local
 profiles_sysfs=/sys/kernel/security/apparmor/profiles
 cache_dir=/var/lib/apparmor
 err=0
@@ -12,9 +13,10 @@ chmod 700 "$cache_dir"
 cache=( --cache-loc "$cache_dir" --write-cache )
 abi=( --override-policy-abi "$profiles_dir"/abstractions/abi )
 
-cd "$profiles_dir"
-while read p
-do apparmor_parser "${cache[@]}" "${abi[@]}" -r "$p" >&2 || err=1
+while read p; do
+	[[ -e "$profiles_dir_local"/"$p" ]] \
+		&& cd "$profiles_dir_local" || cd "$profiles_dir"
+	apparmor_parser "${cache[@]}" "${abi[@]}" -r "$p" >&2 || err=1
 done < "$enabled_conf"
 
 if [[ -e "$profiles_sysfs" ]]; then
