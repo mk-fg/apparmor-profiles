@@ -1,7 +1,6 @@
 #include <tunables/global>
 
 /usr/bin/pulseaudio {
-
 	#include <abstractions/base>
 	#include <abstractions/user-tmp>
 	#include <abstractions/pulse>
@@ -31,6 +30,9 @@
 	owner @{PROC}/@{pid}/fd/* r,
 	owner @{PROC}/@{pid}/mountinfo r,
 
+	@{PROC}/cmdline r,
+	@{PROC}/sys/kernel/osrelease r,
+
 	/sys/bus/ r,
 	/sys/class/ r,
 	/sys/class/sound/ r,
@@ -40,6 +42,7 @@
 
 	network tcp,
 	network udp,
+	network bluetooth,
 
 	## Site-local symlinks
 	/etc/alsa/conf.d/ r,
@@ -54,7 +57,6 @@
 	## JACK integration via module-jack-*
 	/dev/shm/jack-*/** rw,
 	/usr/bin/bash px -> pulse_jackd_sh,
-
 }
 
 # Only purpose of these is to run "jackd -l"
