@@ -6,7 +6,7 @@
 
 #include <tunables/global>
 
-profile /usr/bin/chromium {
+profile chromium-wrapper /usr/bin/chromium {
 	#include <abstractions/base>
 	#include <abstractions/site/base>
 

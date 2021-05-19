@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/usr/bin/nginx {
+profile nginx /usr/bin/nginx {
 	#include <abstractions/base>
 	#include <abstractions/nameservice>
 

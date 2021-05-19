@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/usr/bin/electricsheep {
+profile electricsheep /usr/bin/electricsheep {
 	#include <abstractions/base>
 	#include <abstractions/X>
 	#include <abstractions/nameservice>

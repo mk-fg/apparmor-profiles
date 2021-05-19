@@ -3,7 +3,7 @@
 
 #include <tunables/global>
 
-profile /opt/waterfox-current/waterfox-current {
+profile waterfox /opt/waterfox-current/waterfox-current {
 	#include <abstractions/base>
 	#include <abstractions/site/base>
 	#include <abstractions/site/de>

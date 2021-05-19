@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/opt/Upwork/upwork {
+profile upwork /opt/Upwork/upwork {
 
 	#include <abstractions/base>
 	#include <abstractions/fonts>

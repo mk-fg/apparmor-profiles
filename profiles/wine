@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/usr/bin/wine-preloader {
+profile wine-preloader /usr/bin/wine-preloader {
 
 	#include <abstractions/base>
 	#include <abstractions/fonts>
@@ -94,7 +94,7 @@
 
 }
 
-/usr/bin/wineserver {
+profile wineserver /usr/bin/wineserver {
 
 	#include <abstractions/base>
 	#include <abstractions/nameservice>

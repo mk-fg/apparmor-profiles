@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/usr/share/skypeforlinux/skypeforlinux {
+profile skypeforlinux /usr/share/skypeforlinux/skypeforlinux {
 
 	#include <abstractions/base>
 	#include <abstractions/site/base>

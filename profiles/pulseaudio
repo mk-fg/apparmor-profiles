@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/usr/bin/pulseaudio {
+profile pulseaudio /usr/bin/pulseaudio {
 	#include <abstractions/base>
 	#include <abstractions/user-tmp>
 	#include <abstractions/pulse>

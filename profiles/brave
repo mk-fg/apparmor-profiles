@@ -2,7 +2,7 @@
 
 #include <tunables/global>
 
-profile /usr/lib/brave/brave {
+profile brave /usr/lib/brave/brave {
 	#include <abstractions/base>
 	#include <abstractions/site/base>
 	#include <abstractions/fonts>

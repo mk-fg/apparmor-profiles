@@ -1,7 +1,6 @@
 #include <tunables/global>
 
-# /usr/lib/firefox/firefox flags=( complain ) {
-/usr/lib/firefox/firefox {
+profile firefox /usr/lib/firefox/firefox {
 
 	#include <abstractions/pulse>
 	#include <abstractions/nameservice>
