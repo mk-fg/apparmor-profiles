@@ -63,9 +63,5 @@
   network inet  dgram,
   network inet6 dgram,
 
-  # TODO: adjust when support finer-grained netlink rules
-  # Netlink raw needed for nscd
-  network netlink raw,
-
   # interface details
   @{PROC}/@{pid}/net/route r,

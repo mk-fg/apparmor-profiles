@@ -43,7 +43,7 @@ profile wine-preloader /usr/bin/wine-preloader {
 
 	# For winedbg
 	deny capability sys_ptrace,
-	# owner @{PROC}/*/mem rw,
+	# owner /proc/@{pid}/mem rw,
 
 	# hw
 	/etc/udev/udev.conf r,
@@ -60,7 +60,7 @@ profile wine-preloader /usr/bin/wine-preloader {
 	owner @{HOME}/.cache/wine/** rwk,
 
 	# Actual apps/games
-	owner @{PROC}/@{pid}/mounts r,
+	owner /proc/@{pid}/mounts r,
 	/etc/machine-id r,
 	/mnt/iso/ r,
 	/mnt/iso/** r,
@@ -77,7 +77,7 @@ profile wine-preloader /usr/bin/wine-preloader {
 		#include <abstractions/site/base>
 
 		/etc/fstab r,
-		owner @{PROC}/@{pid}/mounts r,
+		owner /proc/@{pid}/mounts r,
 
 		# DosBox seem to use these directly
 		/dev/input/event[0-9]* r,
@@ -113,7 +113,7 @@ profile wineserver /usr/bin/wineserver {
 
 	# For winedbg
 	deny capability sys_ptrace,
-	# owner @{PROC}/*/mem rw,
+	# owner /proc/@{pid}/mem rw,
 
 	# for initial ~/.wine creation only
 	/ r,

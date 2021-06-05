@@ -24,19 +24,19 @@ profile skypeforlinux /usr/share/skypeforlinux/skypeforlinux {
 	signal (receive) peer=unconfined,
 	deny signal (send) peer=unconfined,
 
-	@{PROC}/ r,
-	@{PROC}/vmstat r,
-	@{PROC}/sys/fs/inotify/max_user_watches r,
-	@{PROC}/@{pids}/stat r,
-	owner @{PROC}/@{pid}/fd/ r,
-	owner @{PROC}/@{pid}/setgroups w,
-	owner @{PROC}/@{pid}/gid_map w,
-	owner @{PROC}/@{pid}/uid_map w,
-	owner @{PROC}/@{pid}/{mem,stat,statm} r,
-	owner @{PROC}/@{pid}/clear_refs w,
-	owner @{PROC}/@{pid}/task/ r,
-	owner @{PROC}/@{pid}/task/@{pids}/stat r,
-	owner @{PROC}/@{pid}/task/@{pids}/status r,
+	/proc/ r,
+	/proc/vmstat r,
+	/proc/sys/fs/inotify/max_user_watches r,
+	/proc/@{pid}/stat r,
+	owner /proc/@{pid}/fd/ r,
+	owner /proc/@{pid}/setgroups w,
+	owner /proc/@{pid}/gid_map w,
+	owner /proc/@{pid}/uid_map w,
+	owner /proc/@{pid}/{mem,stat,statm} r,
+	owner /proc/@{pid}/clear_refs w,
+	owner /proc/@{pid}/task/ r,
+	owner /proc/@{pid}/task/@{pid}/stat r,
+	owner /proc/@{pid}/task/@{pid}/status r,
 
 	/dev/shm/shm-* rwkm, # required for screen sharing
 	/tmp/.org.chromium.Chromium.*/ rw,
@@ -77,7 +77,7 @@ profile skypeforlinux /usr/share/skypeforlinux/skypeforlinux {
 	deny /sys/class/net/ r,
 	deny /sys/devices/virtual/net/** r,
 
-	network inet dgram,
-	network inet stream,
+	network tcp,
+	network udp,
 
 }

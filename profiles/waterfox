@@ -4,6 +4,7 @@
 #include <tunables/global>
 
 profile waterfox /opt/waterfox-current/waterfox-current {
+
 	#include <abstractions/base>
 	#include <abstractions/site/base>
 	#include <abstractions/site/de>
@@ -43,11 +44,11 @@ profile waterfox /opt/waterfox-current/waterfox-current {
 	owner @{HOME}/.cache/waterfox/ rwk,
 	owner @{HOME}/.cache/waterfox/** rwkm,
 
-	owner @{PROC}/@{pid}/fd/ r,
-	owner @{PROC}/@{pid}/{mountinfo,statm,smaps} r,
-	owner @{PROC}/@{pid}/task/@{pids}/stat r,
-	@{PROC}/@{pids}/net/arp r,
-	@{PROC}/@{pids}/{uid_map,gid_map,setgroups} rw,
+	owner /proc/@{pid}/fd/ r,
+	owner /proc/@{pid}/{mountinfo,statm,smaps} r,
+	owner /proc/@{pid}/task/@{pid}/stat r,
+	/proc/@{pid}/net/arp r,
+	/proc/@{pid}/{uid_map,gid_map,setgroups} rw,
 
 	owner /run/user/[0-9]*/dconf/user rw,
 
@@ -81,7 +82,8 @@ profile waterfox /opt/waterfox-current/waterfox-current {
 	/etc/fstab r,
 	/run/mount/utab r,
 
-	# All network
-	network inet dgram,
-	network inet stream,
+	# TCP/UDP should be enough
+	network tcp,
+	network udp,
+
 }

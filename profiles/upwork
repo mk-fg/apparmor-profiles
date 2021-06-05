@@ -42,7 +42,7 @@ profile upwork /opt/Upwork/upwork {
 	# Tries to ptrace itself for some reason (integrity check?)
 	allow capability sys_ptrace,
 	deny ptrace,
-	deny @{PROC}/sys/kernel/yama/ptrace_scope r,
+	deny /proc/sys/kernel/yama/ptrace_scope r,
 
 	# Not sure what happens here, maybe signal to missing pid?
 	deny signal (send) peer=unconfined,
@@ -52,21 +52,21 @@ profile upwork /opt/Upwork/upwork {
 	deny /sys/devices/virtual/tty/tty*/active rw,
 	deny /dev/pts/* rw,
 
-	@{PROC} r,
-	owner @{PROC}/@{pid}/fd/ r,
-	owner @{PROC}/@{pid}/task/@{pid}/status r,
-	owner @{PROC}/@{pid}/mountinfo r,
-	owner @{PROC}/@{pid}/task/ r,
-	owner @{PROC}/@{pid}/task/[0-9]*/stat r,
-	owner @{PROC}/@{pid}/environ r,
-	owner @{PROC}/@{pid}/oom_score_adj rw,
+	/proc r,
+	owner /proc/@{pid}/fd/ r,
+	owner /proc/@{pid}/task/@{pid}/status r,
+	owner /proc/@{pid}/mountinfo r,
+	owner /proc/@{pid}/task/ r,
+	owner /proc/@{pid}/task/[0-9]*/stat r,
+	owner /proc/@{pid}/environ r,
+	owner /proc/@{pid}/oom_score_adj rw,
 
-	@{PROC}/sys/kernel/shmmax r,
-	@{PROC}/sys/fs/inotify/max_user_watches r,
+	/proc/sys/kernel/shmmax r,
+	/proc/sys/fs/inotify/max_user_watches r,
 
-	deny @{PROC}/*/stat{,m} r,
-	deny @{PROC}/{uptime,vmstat} r,
-	deny @{PROC}/*/comm r,
+	deny /proc/@{pid}/stat{,m} r,
+	deny /proc/@{pid}/comm r,
+	deny /proc/{uptime,vmstat} r,
 
 	/dev/ r,
 	/sys/bus/pci/devices/ r,
@@ -80,6 +80,7 @@ profile upwork /opt/Upwork/upwork {
 	/dev/shm/.org.chromium.Chromium.* rwkm,
 	/dev/shm/org.chromium.Chromium.shmem.* rwmk,
 
-	network,
+	network tcp,
+	network udp,
 
 }

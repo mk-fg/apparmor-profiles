@@ -18,5 +18,6 @@ profile electricsheep /usr/bin/electricsheep {
 	@{HOME}/.electricsheep/ rwk,
 	@{HOME}/.electricsheep/** rwk,
 
-	network,
+	network tcp,
+	network udp,
 }

@@ -1,5 +1,3 @@
-#include <tunables/global>
-
 profile nginx /usr/bin/nginx {
 	#include <abstractions/base>
 	#include <abstractions/nameservice>
@@ -23,7 +21,12 @@ profile nginx /usr/bin/nginx {
 	capability dac_read_search dac_override net_bind_service setuid setgid,
 	/proc/sys/kernel/random/boot_id r,
 
-	network inet tcp,
-	network inet udp,
-	network inet icmp,
+	# systemd modules in nsswitch.conf
+	deny /proc/sys/kernel/osrelease r,
+	deny /proc/1/environ r,
+	deny /proc/cmdline r,
+
+	network tcp,
+	network udp,
+	network icmp,
 }

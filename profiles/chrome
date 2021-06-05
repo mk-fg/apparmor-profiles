@@ -38,7 +38,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		capability sys_admin sys_chroot sys_ptrace,
 		signal (receive) peer=unconfined,
 		deny signal (send) peer=unconfined,
-		@{PROC}/sys/kernel/yama/ptrace_scope r,
+		/proc/sys/kernel/yama/ptrace_scope r,
 		deny ptrace, # triggers on xdg handlers
 
 
@@ -74,7 +74,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		deny @{HOME} r,
 		/etc/fstab r,
 		/run/mount/utab r,
-		@{PROC}/@{pid}/mountinfo r,
+		/proc/@{pid}/mountinfo r,
 		/usr/share/glib-*/schemas/gschemas.compiled r,
 		deny /{,var/}run/user/*/dconf/user w,
 
@@ -93,22 +93,21 @@ profile chromium-wrapper /usr/bin/chromium {
 
 		### /proc and /dev
 
-		@{PROC}/ r,
-		@{PROC}/vmstat r,
-		@{PROC}/sys/fs/inotify/max_user_watches r,
-		@{PROC}/@{pid}/{stat,status} r,
-		owner @{PROC}/@{pid}/fd/ r,
-		owner @{PROC}/@{pid}/setgroups w,
-		owner @{PROC}/@{pid}/gid_map w,
-		owner @{PROC}/@{pid}/uid_map w,
-		owner @{PROC}/@{pid}/{mem,stat,statm} r,
-		owner @{PROC}/@{pid}/clear_refs w,
-		owner @{PROC}/@{pid}/task/ r,
-		owner @{PROC}/@{pid}/task/@{pids}/stat r,
-		owner @{PROC}/@{pid}/task/@{pids}/status r,
+		/proc/ r,
+		/proc/vmstat r,
+		/proc/sys/fs/inotify/max_user_watches r,
+		/proc/@{pid}/{stat,status} r,
+		owner /proc/@{pid}/fd/ r,
+		owner /proc/@{pid}/setgroups w,
+		owner /proc/@{pid}/gid_map w,
+		owner /proc/@{pid}/uid_map w,
+		owner /proc/@{pid}/{mem,stat,statm} r,
+		owner /proc/@{pid}/clear_refs w,
+		owner /proc/@{pid}/task/ r,
+		owner /proc/@{pid}/task/@{pid}/{stat,status} r,
 
 		deny /sys/devices/virtual/tty/tty*/active r,
-		deny @{PROC}/@{pid}/oom_{,score_}adj rw,
+		deny /proc/@{pid}/oom_{,score_}adj rw,
 
 		# Device access stuff - should allow for GPU, but nothing else, ideally
 		/dev/ r,
@@ -139,8 +138,9 @@ profile chromium-wrapper /usr/bin/chromium {
 
 		### Network
 
-		network inet dgram,
-		network inet stream,
+		network tcp,
+		network udp,
+		network netlink raw, # tracks local netwok configuration
 
 	}
 

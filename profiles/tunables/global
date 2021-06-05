@@ -1,19 +1,28 @@
-# ------------------------------------------------------------------
-#
-#    Copyright (C) 2006-2009 Novell/SUSE
-#    Copyright (C) 2010-2014 Canonical Ltd.
-#
-#    This program is free software; you can redistribute it and/or
-#    modify it under the terms of version 2 of the GNU General Public
-#    License published by the Free Software Foundation.
-#
-# ------------------------------------------------------------------
+## Relevant global tunables used in upstream profiles
 
-# All the tunables definitions that should be available to every profile
-# should be included here
+@{pid}={[1-9],[1-9][0-9],[1-9][0-9][0-9],[1-9][0-9][0-9][0-9],[1-9][0-9][0-9][0-9][0-9],[1-9][0-9][0-9][0-9][0-9][0-9],[1-9][0-9][0-9][0-9][0-9][0-9][0-9]}
+@{tid}=@{pid}
+@{PROC}=/proc/
+@{HOMEDIRS}=/home/
+@{HOME}=@{HOMEDIRS}/*/ /root/
 
-#include <tunables/home>
-#include <tunables/proc>
-#include <tunables/alias>
-#include <tunables/kernelvars>
-#include <tunables/xdg-user-dirs>
+@{XDG_DESKTOP_DIR}="Desktop"
+@{XDG_DOWNLOAD_DIR}="Downloads"
+@{XDG_TEMPLATES_DIR}="Templates"
+@{XDG_PUBLICSHARE_DIR}="Public"
+@{XDG_DOCUMENTS_DIR}="Documents"
+@{XDG_MUSIC_DIR}="Music"
+@{XDG_PICTURES_DIR}="Pictures"
+@{XDG_VIDEOS_DIR}="Videos"
+
+
+## Site-local tunables
+
+# "dotfiles" git repo
+@{HOME_GIT}=@{HOME}/hatch/cFG/
+
+# Have ~/bin path symlinked to a git repo, hence the abstraction
+@{HOME_BIN}=@{HOME}/bin/ @{HOME_GIT}/bin/
+
+# "system-wide configs" git repo
+@{SYS_GIT}=/etc/core/
