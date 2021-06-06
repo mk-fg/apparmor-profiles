@@ -44,6 +44,7 @@ profile pulseaudio /usr/bin/pulseaudio {
 	network tcp,
 	network udp,
 	network bluetooth,
+	network netlink raw,
 
 	## Site-local symlinks
 	/etc/alsa/conf.d/ r,
