@@ -52,7 +52,7 @@ profile upwork /opt/Upwork/upwork {
 	deny /sys/devices/virtual/tty/tty*/active rw,
 	deny /dev/pts/* rw,
 
-	/proc r,
+	/proc/ r,
 	owner /proc/@{pid}/fd/ r,
 	owner /proc/@{pid}/task/@{pid}/status r,
 	owner /proc/@{pid}/mountinfo r,
@@ -82,5 +82,6 @@ profile upwork /opt/Upwork/upwork {
 
 	network tcp,
 	network udp,
+	network netlink raw,
 
 }
