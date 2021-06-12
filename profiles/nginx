@@ -1,3 +1,5 @@
+#include <tunables/global>
+
 profile nginx /usr/bin/nginx {
 	#include <abstractions/base>
 	#include <abstractions/nameservice>
