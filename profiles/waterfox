@@ -3,7 +3,7 @@
 
 #include <tunables/global>
 
-profile waterfox /opt/waterfox-current/waterfox-current {
+profile waterfox /usr/lib/waterfox/waterfox {
 
 	#include <abstractions/base>
 	#include <abstractions/site/base>
@@ -18,11 +18,11 @@ profile waterfox /opt/waterfox-current/waterfox-current {
 	#include <abstractions/dconf>
 	#include <abstractions/user-download>
 
-	/opt/waterfox-current/waterfox-current cix, # tabs
+	/usr/lib/waterfox/waterfox cix, # tabs
 	@{HOME}/.waterfox/url-handler cUx, # dispatcher for magnet: and such
 
 	/ r,
-	/opt/waterfox-current/** rm,
+	/usr/lib/waterfox/** rm,
 
 	/etc/mime.types r,
 	/usr/share/glib-2.0/schemas/gschemas.compiled r,
@@ -31,6 +31,7 @@ profile waterfox /opt/waterfox-current/waterfox-current {
 	deny capability sys_admin,
 	deny capability sys_chroot,
 	deny capability sys_ptrace,
+	deny /etc/os-release r, # probably just to display somewhere
 
 	signal (receive) peer=unconfined,
 	deny signal (send) peer=unconfined,
@@ -38,6 +39,8 @@ profile waterfox /opt/waterfox-current/waterfox-current {
 	owner @{HOME}/.waterfox/ rwk,
 	owner @{HOME}/.waterfox/** rwkm,
 
+	# Tries to import/use chromium "Local State" and "Top Sites" db
+	deny @{HOME}/.config/chromium/** rw,
 	deny @{HOME}/.mozilla/ rw,
 	deny @{HOME}/.mozilla/** rw,
 
@@ -45,10 +48,10 @@ profile waterfox /opt/waterfox-current/waterfox-current {
 	owner @{HOME}/.cache/waterfox/** rwkm,
 
 	owner /proc/@{pid}/fd/ r,
-	owner /proc/@{pid}/{mountinfo,statm,smaps} r,
+	owner /proc/@{pid}/{cgroup,mountinfo,statm,smaps} r,
 	owner /proc/@{pid}/task/@{pid}/stat r,
 	/proc/@{pid}/net/arp r,
-	/proc/@{pid}/{uid_map,gid_map,setgroups} rw,
+	/proc/@{pid}/{setgroups,uid_map,gid_map} rw,
 
 	owner /run/user/[0-9]*/dconf/user rw,
 
