@@ -28,6 +28,10 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	/usr/share/glib-2.0/schemas/gschemas.compiled r,
 	/usr/share/applications/screensavers/ r,
 
+	# Special binary used with browser.runtime.sendNativeMessage API from new-tab ext
+	@{HOME}/.waterfox/fs-access-check cix,
+	deny /etc/motd r, # common file used for fs-access-check, should be silent-denied
+
 	deny capability sys_admin,
 	deny capability sys_chroot,
 	deny capability sys_ptrace,
