@@ -36,6 +36,7 @@ profile upwork /opt/Upwork/upwork {
 	#  check for vm: /bin/sh -c dmesg | grep -i virtual | grep -iE "vmware|qemu|kvm|xen"
 	deny /usr/bin/bash x,
 
+	deny /usr/bin/xdg-settings x, # probably to detect browser and such defaults
 	deny /opt/Upwork/cmon x, # crash monitor binary
 	deny /dev/video0 rwk, # don't need that
 
@@ -54,11 +55,9 @@ profile upwork /opt/Upwork/upwork {
 
 	/proc/ r,
 	owner /proc/@{pid}/fd/ r,
-	owner /proc/@{pid}/task/@{pid}/status r,
-	owner /proc/@{pid}/mountinfo r,
 	owner /proc/@{pid}/task/ r,
-	owner /proc/@{pid}/task/[0-9]*/stat r,
-	owner /proc/@{pid}/environ r,
+	owner /proc/@{pid}/{environ,mountinfo,mem} r,
+	owner /proc/@{pid}/task/@{pid}/{stat,status,syscall} r,
 	owner /proc/@{pid}/oom_score_adj rw,
 
 	/proc/sys/kernel/shmmax r,
