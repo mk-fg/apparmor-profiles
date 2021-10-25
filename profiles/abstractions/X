@@ -44,6 +44,7 @@
 
   # EGL
   /usr/lib/egl/*.so* mr,
+  /usr/share/glvnd/** r,
 
   # DRI
   /usr/lib/dri/**         mr,
