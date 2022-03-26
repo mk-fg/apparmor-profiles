@@ -39,6 +39,7 @@ profile pulseaudio /usr/bin/pulseaudio {
 	/sys/class/sound/ r,
 	/sys/devices/virtual/dmi/id/*_vendor r,
 	/sys/devices/**/sound/** r,
+	/dev/ r,
 	/dev/input/event* r, # module-mmkbd-evdev
 
 	network tcp,
@@ -56,21 +57,8 @@ profile pulseaudio /usr/bin/pulseaudio {
 	deny /etc/pulse/auth.tcp.cookie w,
 	deny @{SYS_GIT}/sys/secure/pulse.cookie w,
 
-	## JACK integration via module-jack-*
-	/dev/shm/jack-*/** rw,
-	/usr/bin/bash px -> pulse_jackd_sh,
-}
-
-# Only purpose of these is to run "jackd -l"
-profile pulse_jackd_sh {
-	#include <abstractions/base>
-	#include <abstractions/site/base>
-	/usr/bin/bash rm,
-	deny /dev/** rw,
-	/usr/bin/jackd px -> pulse_jackd_check,
-}
-profile pulse_jackd_check {
-	#include <abstractions/base>
-	#include <abstractions/site/base>
-	/usr/bin/jackd rm,
+	## Gstreamer and TLS is checked from bluez rtp module, not needed here
+	deny /usr/lib/gstreamer-*/gst-plugin-scanner x,
+	deny @{HOME}/.cache/gstreamer-*/** rw,
+	deny /etc/ssl/** rw,
 }

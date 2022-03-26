@@ -21,7 +21,3 @@ owner @{HOME}/.icons/** r,
 # Custom xdg icon path, specs and such stuff
 owner @{HOME}/.xdg/** r,
 owner @{HOME_GIT}/xdg/** r,
-
-# Disable gstreamer stuff, not used for anything relevant here
-deny /usr/lib/gstreamer-*/gst-plugin-scanner x,
-deny owner @{HOME}/.cache/gstreamer-*/ rw,
