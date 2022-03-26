@@ -70,7 +70,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 
 	# GPU identification
 	/sys/bus/pci/devices/ r,
-	/sys/devices/pci[0-9:.]*/[0-9:.]*/* r,
+	/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
 	/sys/devices/pci[0-9:.]*/[0-9:.]*/[0-9:.]*/** r,
 
 	# U2F token, can be tested via https://webauthn.io/
