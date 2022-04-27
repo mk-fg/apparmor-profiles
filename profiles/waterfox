@@ -87,6 +87,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	# File selection dialogs
 	deny @{HOME} r,
 	deny @{HOME}/.local/share/gvfs-metadata/** r,
+	deny /usr/share/gvfs/** r,
 	/etc/fstab r,
 	/run/mount/utab r,
 
