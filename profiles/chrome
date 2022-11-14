@@ -124,12 +124,12 @@ profile chromium-wrapper /usr/bin/chromium {
 		deny /sys/bus/{clockevents,dax,platform,pci_express,serio,event_source}/devices/ r,
 		deny /sys/bus/{machinecheck,cpu,hdaudio,scsi,clocksource,hid,edac}/devices/ r,
 		deny /sys/bus/{pnp,usb,workqueue,virtio,container,acpi,i2c,snd_seq,mipi-dsi}/devices/ r,
-		deny /sys/bus/{mdio_bus,nvmem,wmi,usb-serial,media,tee,mei,cec,node}/devices/ r,
+		deny /sys/bus/{mdio_bus,nvmem,wmi,usb-serial,media,tee,mei,cec,node,gpio}/devices/ r,
 
 		# U2F token, can be tested via https://webauthn.io/
 		/run/udev/data/* r,
 		/sys/devices/pci*/*/usb*/ r,
-		/sys/devices/pci*/*/usb*/**/{uevent,report_descriptor} r,
+		/sys/devices/pci**/usb*/**/{uevent,report_descriptor} r,
 		/sys/class/hidraw/hidraw* r,
 		/dev/hidraw* rw,
 
