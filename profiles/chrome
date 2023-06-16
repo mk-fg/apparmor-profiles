@@ -100,7 +100,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		owner /proc/@{pid}/mem r,
 		owner /proc/@{pid}/{setgroups,uid_map,gid_map,clear_refs} w,
 		owner /proc/@{pid}/{fd,task}/ r,
-		owner /proc/@{pid}/task/@{pid}/{stat,status} r,
+		owner /proc/@{pid}/task/*/{stat,status} r,
 
 		deny /sys/devices/virtual/tty/tty*/active r,
 		deny /proc/@{pid}/oom_{,score_}adj rw,
