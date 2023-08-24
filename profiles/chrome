@@ -45,6 +45,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		### Main profile dirs, shm and various fs caches
 
 		/etc/chromium/** rk, # policies/managed and such
+		deny @{HOME}/.pki/ w,
 		owner @{HOME}/.pki/nssdb/** rwk,
 		owner @{HOME}/.cache/thumbnails/** rw,
 		owner @{HOME}/.{config,cache}/chromium/ rwk,
