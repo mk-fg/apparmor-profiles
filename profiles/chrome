@@ -110,7 +110,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		/dev/ r,
 		/etc/udev/udev.conf r,
 		/sys/{bus,bus/pci/devices,class,class/hidraw}/ r,
-		/sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class} r,
+		/sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class,revision} r,
 		/sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config} r,
 		/sys/devices/pci[0-9:.]*/**/drm/ r,
 
@@ -120,12 +120,14 @@ profile chromium-wrapper /usr/bin/chromium {
 		deny /sys/devices/system/node/** r,
 		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
 		deny /sys/devices/virtual/dmi/** r,
+		deny /proc/sys/dev/i915/perf_stream_paranoid r,
 
 		# Wildcard rule doesn't work here, as it overrides "/sys/bus/pci/devices/ r"
 		deny /sys/bus/{clockevents,dax,platform,pci_express,serio,event_source}/devices/ r,
 		deny /sys/bus/{machinecheck,cpu,hdaudio,scsi,clocksource,hid,edac}/devices/ r,
 		deny /sys/bus/{pnp,usb,workqueue,virtio,container,acpi,i2c,snd_seq,mipi-dsi}/devices/ r,
 		deny /sys/bus/{mdio_bus,nvmem,wmi,usb-serial,media,tee,mei,cec,node,gpio}/devices/ r,
+		deny /sys/bus/auxiliary/devices/ r,
 
 		# U2F token, can be tested via https://webauthn.io/
 		/run/udev/data/* r,
