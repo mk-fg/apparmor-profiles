@@ -56,6 +56,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	owner /proc/@{pid}/task/@{pid}/stat r,
 	/proc/@{pid}/net/arp r,
 	/proc/@{pid}/{setgroups,uid_map,gid_map} rw,
+	deny /proc/[0-9]*/oom_{,score_}adj rw,
 
 	owner /run/user/[0-9]*/dconf/user rw,
 
@@ -67,11 +68,11 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	# Otherwise it creates a lot of different non-descriptive files/dirs in /tmp root
 	/tmp/waterfox/ rwk,
 	/tmp/waterfox/** rwk,
+	/tmp/WaterfoxLimitedto-be-removed-cachePurge-* rwk, # might be waterfox-specific bug
 
 	# GPU identification
 	/sys/bus/pci/devices/ r,
 	/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
-	/sys/devices/pci[0-9:.]*/[0-9:.]*/[0-9:.]*/** r,
 	/proc/sys/dev/i915/perf_stream_paranoid r,
 
 	# U2F token, can be tested via https://webauthn.io/
@@ -95,5 +96,45 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	# TCP/UDP should be enough
 	network tcp,
 	network udp,
+
+
+	### Runs glxtest/vaapitest/etc to check GPU APIs
+
+	/usr/lib/waterfox/glxtest cx -> glxtest,
+	profile glxtest {
+		#include <abstractions/base>
+		#include <abstractions/site/base>
+		#include <abstractions/site/de>
+		#include <abstractions/X>
+
+		# Inherited lock-fds, might be just leaks
+		@{HOME}/.waterfox/*/.parentlock w,
+		/tmp/waterfox/*/.parentlock w,
+
+		/sys/bus/pci/devices/ r,
+		/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
+		/proc/sys/dev/i915/perf_stream_paranoid r,
+
+		/etc/passwd r,
+		/etc/nsswitch.conf r,
+		owner @{HOME}/.cache/mesa_shader_cache/ rwk,
+		owner @{HOME}/.cache/mesa_shader_cache/** rwk,
+	}
+
+	/usr/lib/waterfox/vaapitest cx -> vaapitest,
+	profile vaapitest {
+		#include <abstractions/base>
+		#include <abstractions/X>
+
+		# Inherited lock-fds, might be just leaks
+		@{HOME}/.waterfox/*/.parentlock w,
+		/tmp/waterfox/*/.parentlock w,
+
+		/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
+		network netlink raw, # not sure what for here
+
+		owner @{HOME}/.cache/waterfox/ rwk,
+		owner @{HOME}/.cache/waterfox/** rwkm,
+	}
 
 }
