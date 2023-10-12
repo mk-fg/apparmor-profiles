@@ -14,10 +14,8 @@ profile nginx /usr/bin/nginx {
 
 	/usr/share/nginx/html r,
 	/usr/share/nginx/html/** r,
-	/srv/www r,
-	/srv/www/** r,
-	/var/empty r,
-	/var/empty/** r,
+	/srv/www/{,**} r,
+	/var/empty/{,**} r,
 
 	# Checks for lot of capabilities on start, fails if check is denied
 	capability dac_read_search dac_override net_bind_service setuid setgid,

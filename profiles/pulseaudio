@@ -1,7 +1,6 @@
 #include <tunables/global>
 
 profile pulseaudio /usr/bin/pulseaudio {
-
 	#include <abstractions/base>
 	#include <abstractions/user-tmp>
 	#include <abstractions/pulse>
@@ -48,8 +47,7 @@ profile pulseaudio /usr/bin/pulseaudio {
 	network netlink raw,
 
 	## Site-local symlinks
-	/etc/alsa/conf.d/ r,
-	/etc/alsa/conf.d/* r,
+	/etc/alsa/conf.d/{,*} r,
 	@{SYS_GIT}/sys/pulse/* r,
 	@{SYS_GIT}/sys/asound.conf r,
 	@{SYS_GIT}/sys/secure/pulse.cookie rk,

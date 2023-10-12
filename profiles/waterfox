@@ -40,16 +40,13 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	signal (receive) peer=unconfined,
 	deny signal (send) peer=unconfined,
 
-	owner @{HOME}/.waterfox/ rwk,
-	owner @{HOME}/.waterfox/** rwkm,
+	owner @{HOME}/.waterfox/{,**} rwkm,
 
 	# Tries to import/use chromium "Local State" and "Top Sites" db
 	deny @{HOME}/.config/chromium/** rw,
-	deny @{HOME}/.mozilla/ rw,
-	deny @{HOME}/.mozilla/** rw,
+	deny @{HOME}/.mozilla/{,**} rw,
 
-	owner @{HOME}/.cache/waterfox/ rwk,
-	owner @{HOME}/.cache/waterfox/** rwkm,
+	owner @{HOME}/.cache/waterfox/{,**} rwkm,
 
 	owner /proc/@{pid}/fd/ r,
 	owner /proc/@{pid}/{cgroup,mountinfo,statm,smaps} r,
@@ -66,14 +63,12 @@ profile waterfox /usr/lib/waterfox/waterfox {
 
 	# Must use TMPDIR=/tmp/waterfox/ env to have it store all its stuff there
 	# Otherwise it creates a lot of different non-descriptive files/dirs in /tmp root
-	/tmp/waterfox/ rwk,
-	/tmp/waterfox/** rwk,
+	/tmp/waterfox/{,**} rwk,
 	/tmp/WaterfoxLimitedto-be-removed-cachePurge-* rwk, # might be waterfox-specific bug
 
 	# GPU identification
 	/sys/bus/pci/devices/ r,
 	/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
-	/proc/sys/dev/i915/perf_stream_paranoid r,
 
 	# U2F token, can be tested via https://webauthn.io/
 	/sys/devices/system/cpu/present r,
@@ -113,12 +108,10 @@ profile waterfox /usr/lib/waterfox/waterfox {
 
 		/sys/bus/pci/devices/ r,
 		/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
-		/proc/sys/dev/i915/perf_stream_paranoid r,
 
 		/etc/passwd r,
 		/etc/nsswitch.conf r,
-		owner @{HOME}/.cache/mesa_shader_cache/ rwk,
-		owner @{HOME}/.cache/mesa_shader_cache/** rwk,
+		owner @{HOME}/.cache/mesa_shader_cache/{,**} rwk,
 	}
 
 	/usr/lib/waterfox/vaapitest cx -> vaapitest,
@@ -133,8 +126,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 		/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
 		network netlink raw, # not sure what for here
 
-		owner @{HOME}/.cache/waterfox/ rwk,
-		owner @{HOME}/.cache/waterfox/** rwkm,
+		owner @{HOME}/.cache/waterfox/{,**} rwkm,
 	}
 
 }

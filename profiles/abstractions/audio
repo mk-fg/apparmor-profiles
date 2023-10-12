@@ -74,3 +74,6 @@ owner @{HOME}/.local/share/openal/hrtf/{,**} r,
 
 # wildmidi
 /etc/wildmidi/wildmidi.cfg r,
+
+# pipewire
+/usr/share/pipewire/client.conf r,
