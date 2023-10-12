@@ -58,5 +58,6 @@ profile pulseaudio /usr/bin/pulseaudio {
 	## Gstreamer and TLS is checked from bluez rtp module, not needed here
 	deny /usr/lib/gstreamer-*/gst-plugin-scanner x,
 	deny @{HOME}/.cache/gstreamer-*/** rw,
-	deny /etc/ssl/** rw,
+	deny /etc/ssl/** r,
+	deny /etc/gnutls/** r,
 }
