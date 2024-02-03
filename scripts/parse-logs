@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import os, sys, re, pathlib as pl
+
+def iter_log_lines(files):
+	if not files: yield from sys.stdin; return
+	for p in files:
+		with pl.Path(p).open() as src: yield from src
+
+def match_attr(name, line):
+	if m := re.search(name + r'="([^"]+)"', line): return m[1]
+
+def main(argv=None):
+	import argparse, textwrap
+	dd = lambda text: re.sub( r' \t+', ' ',
+		textwrap.dedent(text).strip('\n') + '\n' ).replace('\t', '  ')
+	parser = argparse.ArgumentParser(
+		formatter_class=argparse.RawTextHelpFormatter,
+		usage='%(prog)s [opts] [[--] file...]',
+		description='Parse apparmor audit log lines'
+			' to something readable and suitable for "sort -u".')
+	parser.add_argument('log_file', nargs='*',
+		help='File(s) with apparmor logging to process. None - use stdin.')
+	opts = parser.parse_args(sys.argv[1:] if argv is None else argv)
+
+	for line in iter_log_lines(opts.log_file):
+		# 2024-02-03T20:25:22.438729+05:00 kern.notice kernel[-]: [538406.040879]
+		#   audit: type=1400 audit(1706973922.437:997): apparmor="AUDIT" operation="getattr"
+		#   class="file" profile="chromium-wrapper//chromium" name="/sys/devices/virtual/dmi/id/"
+		#   pid=564554 comm="ThreadPoolForeg" requested_mask="r" fsuid=1000 ouid=0
+		if not ((m := re.search(
+			r'(?:^|\s)\[[ \d]+\.\d+\] audit: (.*)', line )) and (line := m[1])): continue
+		print(' '.join( (match_attr(k, line) or '-') for k in
+			'profile class operation name requested_mask'.split() ))
+
+if __name__ == '__main__':
+	try: sys.exit(main())
+	except BrokenPipeError: # stdout pipe closed
+		os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+		sys.exit(1)

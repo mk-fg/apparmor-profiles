@@ -70,7 +70,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	/sys/bus/pci/devices/ r,
 	/sys/devices/pci[0-9:.]*/[0-9:.]*/** r,
 
-	# U2F token, can be tested via https://webauthn.io/
+	# fido2 usb device access, can be tested via https://webauthn.io/
 	/sys/devices/system/cpu/present r,
 	/run/udev/data/* r,
 	/sys/devices/pci*/ r,
