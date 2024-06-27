@@ -92,6 +92,10 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	network tcp,
 	network udp,
 
+	# Unnecessary/undesirable access
+	deny /usr/lib/waterfox/plugin-container x,
+	deny /dev/video* r,
+
 
 	### Runs glxtest/vaapitest/etc to check GPU APIs
 
