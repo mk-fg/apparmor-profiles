@@ -1,0 +1,31 @@
+#include <tunables/global>
+
+profile innd /usr/local/bin/exec-innd {
+	/usr/local/bin/exec-innd rm,
+
+	/usr/bin/innernet-server ix,
+	/usr/bin/innernet-server rm,
+	/etc/innernet-server/ rw,
+	/etc/innernet-server/* rw,
+	/var/lib/innernet-server/ rw,
+	/var/lib/innernet-server/* rwlk,
+
+	# Runs within same profile to work with NoNewPrivileges=yes
+	/usr/bin/ip ix,
+	/usr/bin/ip rm,
+
+	/usr/lib/** rm,
+	/etc/ld.so.* r,
+	/dev/urandom r,
+	/dev/null rw,
+	owner /proc/@{pid}/{maps,cgroup,mountinfo} r,
+
+	network inet,
+	network inet6,
+	network netlink raw,
+	network netlink dgram,
+	network unix, # systemd journal stdout/stderr
+
+	capability net_admin,
+	signal (receive) peer=unconfined,
+}

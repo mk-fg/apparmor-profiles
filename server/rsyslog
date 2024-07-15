@@ -1,0 +1,43 @@
+#include <tunables/global>
+
+profile rsyslog /usr/bin/rsyslogd {
+	/usr/bin/rsyslogd rm,
+	/usr/bin/rsyslogd ix,
+
+	/etc/{,core/sys/watch/}rsyslog*.conf r,
+	/var/spool/rsyslog/* rwk,
+	/var/log/{syslog,processing}/** rwk,
+	signal peer=rsyslog,
+
+	# Client-side syslog access
+	capability syslog sys_admin,
+	capability dac_read_search dac_override, # checks on start
+	/proc/kmsg r,
+
+	# PrivDropToUserID / PrivDropToGroupID
+	capability setuid setgid,
+	/etc/{passwd,group} r,
+	/run/systemd/userdb/ r,
+	/proc/sys/kernel/osrelease r,
+	/proc/sys/vm/overcommit_memory r,
+	/proc/sys/net/ipv6/conf/all/disable_ipv6 r,
+	/proc/{,1/}cmdline r,
+	/proc/sys/kernel/random/boot_id r,
+	deny /proc/1/environ r, # systemd in nsswitch
+
+	/etc/{ld.so.*,hosts} r,
+	/etc/{nsswitch,resolv,host,gai}.conf r,
+	/etc/dns{,.resolv}/* r,
+	/etc/gnutls/config r,
+	/usr/share/zoneinfo/** r,
+	/usr/lib/** rm,
+
+	/dev/urandom r,
+	/run/host/container-manager r,
+	owner /proc/@{pid}/status r,
+
+	signal (receive) peer=unconfined,
+	network inet tcp, network inet udp,
+	network inet6 tcp, network inet6 udp,
+	network unix, # systemd journal stdout/stderr
+}

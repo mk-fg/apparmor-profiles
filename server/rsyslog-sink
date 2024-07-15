@@ -1,0 +1,32 @@
+#include <tunables/global>
+
+profile rsyslog-sink /usr/local/bin/exec-rsyslog-sink {
+	/usr/local/bin/exec-rsyslog-sink rm,
+
+	/usr/bin/rsyslogd rm,
+	/usr/bin/rsyslogd ix,
+
+	/etc/rsyslog.sink.conf r,
+	/etc/gnutls/config r,
+	/var/spool/rsyslog-sink/* rwk,
+	/srv/log-sink/** rwk,
+	signal peer=rsyslog-sink,
+
+	deny network netlink, # routes for getaddrinfo()
+
+	/etc/{ld.so.*,hosts} r,
+	/etc/{nsswitch,resolv,host,gai}.conf r,
+	/etc/dns{,.resolv}/* r,
+	/etc/gnutls/config r,
+	/usr/share/zoneinfo/** r,
+	/usr/lib/** rm,
+
+	/dev/urandom r,
+	/run/host/container-manager r,
+	owner /proc/@{pid}/status r,
+
+	signal (receive) peer=unconfined,
+	network inet tcp, network inet udp,
+	network inet6 tcp, network inet6 udp,
+	network unix, # systemd journal stdout/stderr
+}

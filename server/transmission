@@ -1,0 +1,19 @@
+#include <tunables/global>
+
+profile transmission /usr/bin/transmission-daemon {
+	#include <abstractions/base>
+	#include <abstractions/nameservice>
+	#include <abstractions/openssl>
+	#include <abstractions/ssl-certs>
+
+	/srv/p2p/bt rwkm,
+	/srv/p2p/bt/** rwkm,
+	/srv/p2p/scripts/transmission-*.sh Ux,
+	/tmp/tr_session_id_* rwk,
+
+	owner /proc/@{pid}/mounts r,
+	/proc/sys/net/ipv6/conf/all/disable_ipv6 r,
+
+	network inet tcp, network inet udp,
+	network inet6 tcp, network inet6 udp,
+}

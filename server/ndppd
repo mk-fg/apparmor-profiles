@@ -1,0 +1,18 @@
+#include <tunables/global>
+
+profile ndppd /usr/bin/ndppd {
+	/usr/bin/ndppd rm,
+	/etc/ndppd.conf r,
+
+	/usr/lib/** rm,
+	/etc/ld.so.* r,
+	/proc/@{pid}/net/ipv6_route r,
+
+	network inet6 raw,
+	network inet6 dgram,
+	network packet raw,
+	network unix, # systemd journal stdout/stderr
+
+	capability net_raw net_admin,
+	signal (receive) peer=unconfined,
+}

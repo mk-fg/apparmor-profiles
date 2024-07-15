@@ -1,0 +1,27 @@
+#include <tunables/global>
+
+profile cgit /usr/lib/cgit/cgit.cgi {
+	/usr/lib/** rm,
+	/etc/ld.so.* r,
+	/dev/null rw,
+	/usr/share/webapps/cgit/** r,
+	/usr/share/zoneinfo/** r,
+
+	/etc/cgitrc r,
+	/srv/scm/git/repositories/** r,
+	/usr/lib/cgit/filters/about-formatting.sh Ux,
+	/etc/cgit.banner.html r,
+
+	network unix,
+
+	signal (receive) peer=unconfined,
+
+	/usr/bin/zstd cx -> packer,
+	/usr/bin/gzip cx -> packer,
+	profile packer {
+		/usr/bin/{gzip,zstd} rm,
+		/usr/lib/** rm,
+		/etc/ld.so.* r,
+		/sys/devices/system/cpu/online r,
+	}
+}
