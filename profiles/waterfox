@@ -116,6 +116,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 		/etc/passwd r,
 		/etc/nsswitch.conf r,
 		owner @{HOME}/.cache/mesa_shader_cache/{,**} rwk,
+		owner @{HOME}/.cache/mesa_shader_cache_db/{,**} rwk,
 		/proc/sys/dev/i915/perf_stream_paranoid r,
 	}
 
