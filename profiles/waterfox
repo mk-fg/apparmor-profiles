@@ -64,7 +64,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	# Must use TMPDIR=/tmp/waterfox/ env to have it store all its stuff there
 	# Otherwise it creates a lot of different non-descriptive files/dirs in /tmp root
 	/tmp/waterfox/{,**} rwk,
-	/tmp/WaterfoxLimitedto-be-removed-cachePurge-* rwk, # might be waterfox-specific bug
+	/tmp/BrowserWorks*-cachePurge-* rwk, # might be waterfox-specific bug
 
 	# GPU identification
 	/sys/bus/pci/devices/ r,
