@@ -53,7 +53,7 @@ See also
 --------
 
 - Flatpak, Snap, AppImage, Docker/Podman - one of the goals of these containers
-  is security and isolation too, but usually it's not the primary one,
+  is security and isolation too, though usually not the primary one,
   but LSMs like AppArmor/SELinux can be added there too, to help with that.
 
 - `Landlock LSM`_ - relatively new (2021) unprivileged-sandboxing LSM, kinda like
