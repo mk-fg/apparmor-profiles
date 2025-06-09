@@ -60,4 +60,8 @@ profile pulseaudio /usr/bin/pulseaudio {
 	deny @{HOME}/.cache/gstreamer-*/** rw,
 	deny /etc/ssl/** r,
 	deny /etc/gnutls/** r,
+
+	## GPU dri/audio access shouldn't be needed here
+	deny @{SYS_GIT}/core/app/X/drirc r,
+	deny /sys/devices/pci0000:00/0000:00:03.1/0000:08:00.0/0000:09:01.0/** r,
 }
