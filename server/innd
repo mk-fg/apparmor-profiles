@@ -19,6 +19,7 @@ profile innd /usr/local/bin/exec-innd {
 	/dev/urandom r,
 	/dev/null rw,
 	owner /proc/@{pid}/{maps,cgroup,mountinfo} r,
+	/sys/fs/cgroup/system.slice/cpu.max r,
 
 	network inet,
 	network inet6,
