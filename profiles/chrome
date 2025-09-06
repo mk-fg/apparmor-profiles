@@ -98,7 +98,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		/proc/sys/fs/inotify/max_user_watches r,
 		/proc/@{pid}/{stat,statm,status} r,
 		/proc/pressure/* r,
-		owner /proc/@{pid}/mem r,
+		owner /proc/@{pid}/{mem,smaps_rollup} r,
 		owner /proc/@{pid}/{setgroups,uid_map,gid_map,clear_refs} w,
 		owner /proc/@{pid}/{fd,task}/ r,
 
