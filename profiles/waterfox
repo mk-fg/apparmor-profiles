@@ -74,6 +74,7 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	# fido2 usb device access, can be tested via https://webauthn.io/
 	/sys/devices/system/cpu/present r,
 	/run/udev/data/* r,
+	/sys/devices/pci0000:00/uevent r,
 	/sys/devices/pci*/ r,
 	/sys/devices/pci*/*/ r,
 	/sys/devices/pci*/*/usb*/ r,
