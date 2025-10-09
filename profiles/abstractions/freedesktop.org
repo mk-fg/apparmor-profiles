@@ -45,5 +45,8 @@ owner @{HOME}/.cache/thumbnails/{,**} rw,
 owner @{HOME}/.cache/mesa{,_shader_cache,_shader_cache_db}/ rw,
 owner @{HOME}/.cache/mesa{,_shader_cache,_shader_cache_db}/** mrkw,
 @{PROC}/sys/dev/i915/perf_stream_paranoid r,
+
+# system-wide drop-in configs for desktop libs
 /usr/share/vulkan/icd.d/{,*} r,
 /usr/share/vulkan/implicit_layer.d/{,*} r,
+/usr/share/glycin-loaders/2+/conf.d/{,*} r,
