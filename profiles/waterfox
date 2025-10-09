@@ -3,7 +3,7 @@
 
 #include <tunables/global>
 
-profile waterfox /usr/lib/waterfox/waterfox {
+profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 
 	#include <abstractions/base>
 	#include <abstractions/site/base>
@@ -54,6 +54,7 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	/proc/@{pid}/net/arp r,
 	/proc/@{pid}/{setgroups,uid_map,gid_map} rw,
 	deny /proc/[0-9]*/oom_{,score_}adj rw,
+	deny /sys/fs/cgroup/**/cpu.max r,
 
 	owner /run/user/[0-9]*/dconf/user rw,
 
@@ -87,6 +88,13 @@ profile waterfox /usr/lib/waterfox/waterfox {
 	deny /usr/share/gvfs/** r,
 	/etc/fstab r,
 	/run/mount/utab r,
+
+	# Wraps itself in bwrap
+	/usr/bin/bwrap cix,
+	/proc/sys/kernel/random/boot_id r,
+	/proc/sys/kernel/overflowuid r,
+	/proc/sys/kernel/overflowgid r,
+	/proc/sys/user/max_user_namespaces r,
 
 	# TCP/UDP should be enough
 	network tcp,
@@ -137,5 +145,13 @@ profile waterfox /usr/lib/waterfox/waterfox {
 
 		owner @{HOME}/.cache/waterfox/{,**} rwkm,
 	}
+
+	/usr/lib/glycin-loaders/2+/glycin-* cx -> glycin,
+	profile glycin {
+		#include <abstractions/base>
+		signal (send) peer=waterfox,
+		signal (receive) peer=waterfox,
+	}
+	signal (send) peer=waterfox//glycin,
 
 }
