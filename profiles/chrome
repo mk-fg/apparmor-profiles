@@ -91,7 +91,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		/tmp/#[0-9]* m,
 
 
-		### /proc and /dev
+		### /proc, /sys and /dev
 
 		/proc/ r,
 		/proc/vmstat r,
@@ -106,34 +106,39 @@ profile chromium-wrapper /usr/bin/chromium {
 		deny /sys/devices/virtual/tty/tty*/active r,
 		deny /proc/@{pid}/oom_{,score_}adj rw,
 
-		# Device access stuff - to allow at least enumeration and GPU access
+		## Device access stuff - should allow for GPU, but nothing else, ideally
+		# Higher priority to override broad deny-rules there
 		/dev/ r,
 		/etc/udev/udev.conf r,
-		/sys/{bus,class}/ r,
-		/sys/class/*/ r,
-		/sys/bus/*/devices/ r,
-		/sys/devices/pci0000:00/uevent r,
-		/sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class,revision} r,
-		/sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config,boot_vga} r,
-		/sys/devices/pci[0-9:.]*/**/drm/ r,
+
+		priority=100 /sys/{bus,class}/ r,
+		priority=100 /sys/class/*/ r,
+		priority=100 /sys/bus/*/devices/ r,
+		priority=100 /sys/devices/pci0000:00/uevent r,
+		priority=100 /sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class,revision} r,
+		priority=100 /sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config,boot_vga} r,
+		priority=100 /sys/devices/pci[0-9:.]*/**/drm/ r,
 
 		# U2F token, can be tested via https://webauthn.io/
-		/run/udev/data/* r,
-		/sys/devices/pci*/*/usb*/ r,
-		/sys/devices/pci**/usb*/**/{uevent,report_descriptor} r,
-		/sys/class/hidraw/hidraw* r,
-		/dev/hidraw* rw,
+		priority=100 /run/udev/data/* r,
+		priority=100 /sys/devices/pci*/*/usb*/ r,
+		priority=100 /sys/devices/pci**/usb*/**/{uevent,report_descriptor} r,
+		priority=100 /sys/class/hidraw/hidraw* r,
+		priority=100 /dev/hidraw* rw,
 
 		# Things that I don't want chrome to use here anyway
 		deny /dev/video* r,
 		deny /sys/devices/system/node/** r,
 		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
+		deny /sys/devices/**/uevent r, # these scans don't seem to be required
 
 		### Network
-
 		network tcp,
 		network udp,
 		network netlink raw, # tracks local netwok configuration
+
+		### Uses namespaces
+		userns create,
 
 	}
 

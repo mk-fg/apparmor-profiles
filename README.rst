@@ -21,8 +21,10 @@ system (currently Arch Linux), allowing stuff like ``@{HOME}/** r``, so prefer t
 use them just for reference, copying only obvious and safe access lines from there,
 getting (or confirming) the rest from audit logs.
 
-Main doc on rule syntax:
+Docs on AppArmor rule syntax:
+https://man.archlinux.org/man/apparmor.d.5
 https://gitlab.com/apparmor/apparmor/wikis/AppArmor_Core_Policy_Reference
+https://doc.opensuse.org/documentation/leap/security/html/book-security/cha-apparmor-profiles.html
 
 I use apparmor_init_ script (under "scripts" dir) to load these profiles with
 some caching and "--override-policy-abi" option to avoid needing boilerplate
