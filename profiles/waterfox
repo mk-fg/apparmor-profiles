@@ -101,6 +101,9 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	network tcp,
 	network udp,
 
+	# Uses namespaces
+	userns create,
+
 	# Unnecessary/undesirable access
 	deny /usr/lib/waterfox/plugin-container x,
 	deny /dev/video* r,
