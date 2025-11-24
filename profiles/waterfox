@@ -48,9 +48,9 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 
 	owner @{HOME}/.cache/waterfox/{,**} rwkm,
 
-	owner /proc/@{pid}/fd/ r,
+	owner /proc/@{pid}/{fd,task}/ r,
+	owner /proc/@{pid}/task/@{pid}/{stat,comm} r,
 	owner /proc/@{pid}/{cgroup,mountinfo,statm,smaps} r,
-	owner /proc/@{pid}/task/@{pid}/stat r,
 	/proc/@{pid}/net/arp r,
 	/proc/@{pid}/{setgroups,uid_map,gid_map} rw,
 	deny /proc/[0-9]*/oom_{,score_}adj rw,
