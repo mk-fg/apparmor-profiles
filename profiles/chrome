@@ -138,7 +138,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		network netlink raw, # tracks local netwok configuration
 
 		### Uses namespaces
-		userns create,
+		userns,
 
 	}
 
