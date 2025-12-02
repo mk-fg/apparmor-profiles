@@ -1,8 +1,4 @@
-# For https://github.com/Eloston/ungoogled-chromium variant of chromium
-
-# NOTE: assumes kernel support for ns-sandbox, and not suid-sandbox
-#   modern chromium uses ns-sandbox if it can, with suid as a fallback
-#   see also: https://bugs.chromium.org/p/chromium/issues/detail?id=312380
+# For https://github.com/ungoogled-software/ungoogled-chromium variant of chromium specifically
 
 #include <tunables/global>
 
@@ -69,15 +65,65 @@ profile chromium-wrapper /usr/bin/chromium {
 		/{run,dev}/shm/org.chromium.Chromium.shmem.* rwkm,
 
 
-		### Misc optional access
+		### File selection dialogs - uses glycin + bwrap
 
-		# File selection dialogs
-		deny @{HOME} r,
 		/etc/fstab r,
 		/run/mount/utab r,
 		/proc/@{pid}/mountinfo r,
-		/usr/share/glib-*/schemas/gschemas.compiled r,
+
+		/ r, # required for glycin here as well
+		/usr/bin/bwrap px -> chromium-wrapper//chromium//glycin, # "cx" drops chromium-wrapper// prefix
+		/proc/sys/kernel/random/boot_id r,
+
+		profile glycin flags=(attach_disconnected) {
+			#include <abstractions/base>
+
+			# Complicated bwrap-userns-sandbox creation
+			/usr/bin/bwrap mr,
+			network netlink,
+			userns,
+			capability sys_admin setpcap net_admin sys_ptrace, # cap checks
+
+			/proc/sys/kernel/{random/boot_id,overflowuid,overflowgid} r,
+			/proc/sys/user/max_user_namespaces r,
+			owner /proc/@{pid}/fd/ r,
+			owner /proc/@{pid}/{setgroups,uid_map,gid_map} rw,
+			owner /proc/@{pid}/mountinfo r,
+
+			mount fstype=tmpfs tmpfs,
+			mount options in (rw, silent, rslave) /,
+			mount options in (rw, rbind) /tmp/newroot/ -> /tmp/newroot/,
+			mount -> /oldroot/,
+			mount -> /newroot/**,
+			umount,
+
+			/newroot/{,**} rw,
+			/tmp/{old,new}root/ rw,
+			pivot_root oldroot=/tmp/oldroot/ /tmp/,
+			pivot_root oldroot=/newroot/ /newroot/,
+			/usr/bin/true ix, # bwrap exec-test
+
+			# Inherited paths
+			/dev/shm/.org.chromium.Chromium.* rwk,
+			owner @{HOME}/.{config,cache}/chromium/ rwk,
+			owner @{HOME}/.{config,cache}/chromium/** rwk,
+
+			# glycin cannot use px/cx due to PR_SET_NO_NEW_PRIVS from bwrap
+			/usr/lib/glycin-loaders/2+/glycin-* ix,
+			/ r,
+			signal (send) peer=chromium-wrapper//chromium,
+			signal (receive) peer=chromium-wrapper//chromium,
+		}
+		signal (send) peer=chromium-wrapper//chromium//glycin,
+
+
+		### Misc optional access
+
+		# Shouldn't need to update any global-ish settings
 		deny /{,var/}run/user/*/dconf/user w,
+
+		# Only needs Desktop/Downloads, has that via includes
+		deny @{HOME} r,
 
 		# Platform stats/fingerprinting
 		deny /etc/os-release r,
@@ -105,6 +151,7 @@ profile chromium-wrapper /usr/bin/chromium {
 		deny /proc/@{pid}/task/*/status r, # hard to restrict to its own pids
 		deny /sys/devices/virtual/tty/tty*/active r,
 		deny /proc/@{pid}/oom_{,score_}adj rw,
+		deny /proc/@{pid}/cgroup r, # checks for cpu.max and such
 
 		## Device access stuff - should allow for GPU, but nothing else, ideally
 		# Higher priority to override broad deny-rules there
