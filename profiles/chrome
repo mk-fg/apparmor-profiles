@@ -107,6 +107,7 @@ profile chromium-wrapper /usr/bin/chromium {
 			/dev/shm/.org.chromium.Chromium.* rwk,
 			owner @{HOME}/.{config,cache}/chromium/ rwk,
 			owner @{HOME}/.{config,cache}/chromium/** rwk,
+			owner @{HOME}/Downloads/** rwk,
 
 			# glycin cannot use px/cx due to PR_SET_NO_NEW_PRIVS from bwrap
 			/usr/lib/glycin-loaders/2+/glycin-* ix,
