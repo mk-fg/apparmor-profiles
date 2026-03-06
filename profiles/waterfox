@@ -107,12 +107,12 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	# Unnecessary/undesirable access
 	deny /usr/lib/waterfox/plugin-container x,
 	deny /dev/video* r,
+	deny /sys/class/input/ r,
 
 	# Platform fingerprinting
 	deny /sys/devices/virtual/dmi/id/product_* r,
 
-
-	### Runs glxtest/vaapitest/etc to check GPU APIs
+	### Runs glxtest/vaapitest/etc to check GPU APIs, glycin for images
 
 	/usr/lib/waterfox/glxtest cx -> glxtest,
 	profile glxtest {
