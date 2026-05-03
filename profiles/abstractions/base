@@ -138,3 +138,6 @@ unix (create),
 
 # Allow us to getattr, getopt, setop and shutdown on unix sockets
 unix (getattr, getopt, setopt, shutdown),
+
+# Common prefork dir-change
+/ r,

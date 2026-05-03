@@ -21,7 +21,6 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	/usr/lib/waterfox/waterfox cix, # tabs
 	@{HOME}/.waterfox/url-handler cUx, # dispatcher for magnet: and such
 
-	/ r,
 	/usr/lib/waterfox/** rm,
 
 	/etc/mime.types r,

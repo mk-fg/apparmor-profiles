@@ -71,7 +71,6 @@ profile chromium-wrapper /usr/bin/chromium {
 		/run/mount/utab r,
 		/proc/@{pid}/mountinfo r,
 
-		/ r, # required for glycin here as well
 		/usr/bin/bwrap px -> chromium-wrapper//chromium//glycin, # "cx" drops chromium-wrapper// prefix
 		/proc/sys/kernel/random/boot_id r,
 
@@ -111,7 +110,6 @@ profile chromium-wrapper /usr/bin/chromium {
 
 			# glycin cannot use px/cx due to PR_SET_NO_NEW_PRIVS from bwrap
 			/usr/lib/glycin-loaders/2+/glycin-* ix,
-			/ r,
 			signal (send) peer=chromium-wrapper//chromium,
 			signal (receive) peer=chromium-wrapper//chromium,
 		}
