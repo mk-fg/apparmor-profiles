@@ -31,6 +31,7 @@ profile rsyslog /usr/bin/rsyslogd {
 	/etc/gnutls/config r,
 	/usr/share/zoneinfo/** r,
 	/usr/lib/** rm,
+	/ r,
 
 	/dev/urandom r,
 	/run/host/container-manager r,
