@@ -5,187 +5,195 @@
 profile chromium-wrapper /usr/bin/chromium {
 	#include <abstractions/base>
 	#include <abstractions/site/base>
+	/usr/lib/chromium/chromium px -> chromium,
+}
 
-	/usr/lib/chromium/chromium cx -> chromium,
+profile chromium {
+	#include <abstractions/base>
+	#include <abstractions/site/base>
+	#include <abstractions/fonts>
+	#include <abstractions/X>
+	#include <abstractions/pulse>
+	#include <abstractions/gnome>
+	#include <abstractions/nameservice>
+	#include <abstractions/freedesktop.org>
+	#include <abstractions/ssl-certs>
+	#include <abstractions/site/de>
+	#include <abstractions/dconf>
+	#include <abstractions/user-download>
 
-	profile chromium {
+
+	### Main binary and sandboxing setup
+
+	/usr/lib/chromium/chromium ix,
+	/usr/lib/chromium/** mr,
+	/usr/lib/chromium/chromium mr,
+	deny /usr/bin/xdg-{settings,desktop-menu} x, # "default browser" stuff
+
+	# sandbox/linux/services/namespace_sandbox.cc credentials.cc
+	capability sys_admin sys_chroot sys_ptrace,
+	signal (receive) peer=unconfined,
+	deny signal (send) peer=unconfined,
+	/proc/sys/kernel/yama/ptrace_scope r,
+	deny ptrace, # triggers on xdg handlers
+
+
+	### Main profile dirs, shm and various fs caches
+
+	/etc/chromium/** rk, # policies/managed and such
+	/etc/gnutls/config r, # still uses gnutls, it seems
+	deny @{HOME}/{.local/share/,}.pki/ w,
+	owner @{HOME}/.local/share/pki/nssdb/{,**} rwk,
+	owner @{HOME}/.cache/thumbnails/{,**} rw,
+	owner @{HOME}/.{config,cache}/chromium/ rwk,
+	owner @{HOME}/.{config,cache}/chromium/** rwk,
+
+	# Keep dedicated extension dir read-only, never use system-wide ones
+	audit deny @{HOME}/.config/chromium/Extensions/** w,
+	deny /usr/lib/chromium/extensions/ rw,
+
+	# Fills these paths with gigs of trash fast otherwise
+	deny @{HOME}/.config/chromium/BrowserMetrics/{,**} rw,
+	deny @{HOME}/.config/chromium/BrowserMetrics* rw,
+
+	# Site-local stuff
+	@{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
+	owner @{HOME}/.config/chromium/Extensions/_bin/xdg-open cUx, # dispatcher for magnet: and such
+
+	@{HOME}/.local/share/.org.chromium.Chromium.* rwkm, # not sure what these are for, also shm?
+	/{run,dev}/shm/.org.chromium.Chromium.* rwkm,
+	/{run,dev}/shm/org.chromium.Chromium.shmem.* rwkm,
+
+
+	### File selection dialogs - uses glycin + bwrap
+
+	/etc/fstab r,
+	/run/mount/utab r,
+	/proc/@{pid}/mountinfo r,
+
+	/usr/bin/bwrap cx -> glycin,
+	/proc/sys/kernel/random/boot_id r,
+
+	profile glycin flags=(attach_disconnected) {
 		#include <abstractions/base>
-		#include <abstractions/site/base>
-		#include <abstractions/fonts>
-		#include <abstractions/X>
-		#include <abstractions/pulse>
-		#include <abstractions/gnome>
-		#include <abstractions/nameservice>
-		#include <abstractions/freedesktop.org>
-		#include <abstractions/ssl-certs>
-		#include <abstractions/site/de>
-		#include <abstractions/dconf>
-		#include <abstractions/user-download>
 
+		# Complicated bwrap-userns-sandbox creation
+		/usr/bin/bwrap mr,
+		network netlink,
+		userns,
+		capability sys_admin setpcap net_admin sys_ptrace, # cap checks
 
-		### Main binary and sandboxing setup
+		/proc/sys/kernel/{random/boot_id,overflowuid,overflowgid} r,
+		/proc/sys/user/max_user_namespaces r,
+		owner /proc/@{pid}/fd/ r,
+		owner /proc/@{pid}/{setgroups,uid_map,gid_map} rw,
+		owner /proc/@{pid}/mountinfo r,
 
-		/usr/lib/chromium/chromium ix,
-		/usr/lib/chromium/** mr,
-		/usr/lib/chromium/chromium mr,
-		deny /usr/bin/xdg-{settings,desktop-menu} x, # "default browser" stuff
+		mount fstype=tmpfs tmpfs,
+		mount options in (rw, silent, rslave) /,
+		mount options in (rw, rbind) /tmp/newroot/ -> /tmp/newroot/,
+		mount -> /oldroot/,
+		mount -> /newroot/**,
+		umount,
 
-		# sandbox/linux/services/namespace_sandbox.cc credentials.cc
-		capability sys_admin sys_chroot sys_ptrace,
-		signal (receive) peer=unconfined,
-		deny signal (send) peer=unconfined,
-		/proc/sys/kernel/yama/ptrace_scope r,
-		deny ptrace, # triggers on xdg handlers
+		/newroot/{,**} rw,
+		/tmp/{old,new}root/ rw,
+		pivot_root oldroot=/tmp/oldroot/ /tmp/,
+		pivot_root oldroot=/newroot/ /newroot/,
+		/usr/bin/true ix, # bwrap exec-test
 
-
-		### Main profile dirs, shm and various fs caches
-
-		/etc/chromium/** rk, # policies/managed and such
-		/etc/gnutls/config r, # still uses gnutls, it seems
-		deny @{HOME}/.pki/ w,
-		owner @{HOME}/.pki/nssdb/{,**} rwk,
-		owner @{HOME}/.cache/thumbnails/{,**} rw,
+		# Inherited paths
+		/dev/shm/.org.chromium.Chromium.* rwk,
 		owner @{HOME}/.{config,cache}/chromium/ rwk,
 		owner @{HOME}/.{config,cache}/chromium/** rwk,
+		owner @{HOME}/Downloads/** rwk,
 
-		# Keep dedicated extension dir read-only, never use system-wide ones
-		audit deny @{HOME}/.config/chromium/Extensions/** w,
-		deny /usr/lib/chromium/extensions/ rw,
-
-		# Fills these paths with gigs of trash fast otherwise
-		deny @{HOME}/.config/chromium/BrowserMetrics/{,**} rw,
-		deny @{HOME}/.config/chromium/BrowserMetrics* rw,
-
-		# Site-local stuff
-		@{SYS_GIT}/app/X/vdpau_wrapper.cfg r,
-		owner @{HOME}/.config/chromium/Extensions/_bin/xdg-open cUx, # dispatcher for magnet: and such
-
-		@{HOME}/.local/share/.org.chromium.Chromium.* rwkm, # not sure what these are for, also shm?
-		/{run,dev}/shm/.org.chromium.Chromium.* rwkm,
-		/{run,dev}/shm/org.chromium.Chromium.shmem.* rwkm,
-
-
-		### File selection dialogs - uses glycin + bwrap
-
-		/etc/fstab r,
-		/run/mount/utab r,
-		/proc/@{pid}/mountinfo r,
-
-		/usr/bin/bwrap px -> chromium-wrapper//chromium//glycin, # "cx" drops chromium-wrapper// prefix
-		/proc/sys/kernel/random/boot_id r,
-
-		profile glycin flags=(attach_disconnected) {
-			#include <abstractions/base>
-
-			# Complicated bwrap-userns-sandbox creation
-			/usr/bin/bwrap mr,
-			network netlink,
-			userns,
-			capability sys_admin setpcap net_admin sys_ptrace, # cap checks
-
-			/proc/sys/kernel/{random/boot_id,overflowuid,overflowgid} r,
-			/proc/sys/user/max_user_namespaces r,
-			owner /proc/@{pid}/fd/ r,
-			owner /proc/@{pid}/{setgroups,uid_map,gid_map} rw,
-			owner /proc/@{pid}/mountinfo r,
-
-			mount fstype=tmpfs tmpfs,
-			mount options in (rw, silent, rslave) /,
-			mount options in (rw, rbind) /tmp/newroot/ -> /tmp/newroot/,
-			mount -> /oldroot/,
-			mount -> /newroot/**,
-			umount,
-
-			/newroot/{,**} rw,
-			/tmp/{old,new}root/ rw,
-			pivot_root oldroot=/tmp/oldroot/ /tmp/,
-			pivot_root oldroot=/newroot/ /newroot/,
-			/usr/bin/true ix, # bwrap exec-test
-
-			# Inherited paths
-			/dev/shm/.org.chromium.Chromium.* rwk,
-			owner @{HOME}/.{config,cache}/chromium/ rwk,
-			owner @{HOME}/.{config,cache}/chromium/** rwk,
-			owner @{HOME}/Downloads/** rwk,
-
-			# glycin cannot use px/cx due to PR_SET_NO_NEW_PRIVS from bwrap
-			/usr/lib/glycin-loaders/2+/glycin-* ix,
-			signal (send) peer=chromium-wrapper//chromium,
-			signal (receive) peer=chromium-wrapper//chromium,
-		}
-		signal (send) peer=chromium-wrapper//chromium//glycin,
-
-
-		### Misc optional access
-
-		# Shouldn't need to update any global-ish settings
-		deny /{,var/}run/user/*/dconf/user w,
-
-		# Only needs Desktop/Downloads, has that via includes
-		deny @{HOME} r,
-
-		# Platform stats/fingerprinting
-		deny /etc/os-release r,
-		deny /sys/devices/virtual/dmi/id/{,*} r,
-
-		# Imports from other browsers/apps
-		deny @{HOME}/.mozilla/firefox/{,**} rw,
-
-		# Weird mmap probes
-		deny @{HOME}/#[0-9]* m,
-		/tmp/#[0-9]* m,
-
-
-		### /proc, /sys and /dev
-
-		/proc/ r,
-		/proc/vmstat r,
-		/proc/sys/fs/inotify/max_user_watches r,
-		/proc/@{pid}/{stat,statm,status} r,
-		/proc/pressure/* r,
-		owner /proc/@{pid}/{mem,smaps_rollup} r,
-		owner /proc/@{pid}/{setgroups,uid_map,gid_map,clear_refs} w,
-		owner /proc/@{pid}/{fd,task}/ r,
-
-		deny /proc/@{pid}/task/*/status r, # hard to restrict to its own pids
-		deny /sys/devices/virtual/tty/tty*/active r,
-		deny /proc/@{pid}/oom_{,score_}adj rw,
-		deny /proc/@{pid}/cgroup r, # checks for cpu.max and such
-
-		## Device access stuff - should allow for GPU, but nothing else, ideally
-		# Higher priority to override broad deny-rules there
-		/dev/ r,
-		/etc/udev/udev.conf r,
-
-		priority=100 /sys/{bus,class}/ r,
-		priority=100 /sys/class/*/ r,
-		priority=100 /sys/bus/*/devices/ r,
-		priority=100 /sys/devices/pci0000:00/uevent r,
-		priority=100 /sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class,revision} r,
-		priority=100 /sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config,boot_vga} r,
-		priority=100 /sys/devices/pci[0-9:.]*/**/drm/ r,
-
-		# U2F token, can be tested via https://webauthn.io/
-		priority=100 /run/udev/data/* r,
-		priority=100 /sys/devices/pci*/*/usb*/ r,
-		priority=100 /sys/devices/pci**/usb*/**/{uevent,report_descriptor} r,
-		priority=100 /sys/class/hidraw/hidraw* r,
-		priority=100 /dev/hidraw* rw,
-
-		# Things that I don't want chrome to use here anyway
-		deny /dev/video* r,
-		deny /sys/devices/system/node/** r,
-		deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
-		deny /sys/devices/**/uevent r, # these scans don't seem to be required
-
-		### Network
-		network tcp,
-		network udp,
-		network netlink raw, # tracks local netwok configuration
-
-		### Uses namespaces
-		userns,
-
+		# glycin cannot use px/cx due to PR_SET_NO_NEW_PRIVS from bwrap
+		/usr/lib/glycin-loaders/2+/glycin-* ix,
+		signal (send) peer=chromium,
+		signal (receive) peer=chromium,
 	}
+	signal (send) peer=chromium//glycin,
+
+
+	### crashpad_handler seem to be always run and required
+	/usr/lib/chromium/chrome_crashpad_handler cx -> crashpad,
+	profile crashpad flags=(attach_disconnected) {
+		#include <abstractions/base>
+		owner /proc/*/fd/ r,
+		/proc/sys/fs/nr_open r,
+		/usr/lib/chromium/chrome_crashpad_handler ix,
+	}
+
+
+	### Misc optional access
+
+	# Shouldn't need to update any global-ish settings
+	deny /{,var/}run/user/*/dconf/user w,
+
+	# Only needs Desktop/Downloads, has that via includes
+	deny @{HOME} r,
+
+	# Platform stats/fingerprinting
+	deny /etc/os-release r,
+	deny /sys/devices/virtual/dmi/id/{,*} r,
+
+	# Imports from other browsers/apps
+	deny @{HOME}/.mozilla/firefox/{,**} rw,
+
+	# Weird mmap probes
+	deny @{HOME}/#[0-9]* m,
+	/tmp/#[0-9]* m,
+
+
+	### /proc, /sys and /dev
+
+	/proc/ r,
+	/proc/vmstat r,
+	/proc/sys/fs/inotify/max_user_watches r,
+	/proc/@{pid}/{stat,statm,status} r,
+	/proc/pressure/* r,
+	owner /proc/@{pid}/{mem,smaps_rollup} r,
+	owner /proc/@{pid}/{setgroups,uid_map,gid_map,clear_refs} w,
+	owner /proc/@{pid}/{fd,task}/ r,
+
+	deny /proc/@{pid}/task/*/status r, # hard to restrict to its own pids
+	deny /sys/devices/virtual/tty/tty*/active r,
+	deny /proc/@{pid}/oom_{,score_}adj rw,
+	deny /proc/@{pid}/cgroup r, # checks for cpu.max and such
+
+	## Device access stuff - should allow for GPU, but nothing else, ideally
+	# Higher priority to override broad deny-rules there
+	/dev/ r,
+	/etc/udev/udev.conf r,
+
+	priority=100 /sys/{bus,class}/ r,
+	priority=100 /sys/class/*/ r,
+	priority=100 /sys/bus/*/devices/ r,
+	priority=100 /sys/devices/pci0000:00/uevent r,
+	priority=100 /sys/devices/pci[0-9:.]*/**/{uevent,resource,irq,vendor,device,class,revision} r,
+	priority=100 /sys/devices/pci[0-9:.]*/**/{subsystem_vendor,subsystem_device,config,boot_vga} r,
+	priority=100 /sys/devices/pci[0-9:.]*/**/drm/ r,
+
+	# U2F token, can be tested via https://webauthn.io/
+	priority=100 /run/udev/data/* r,
+	priority=100 /sys/devices/pci*/*/usb*/ r,
+	priority=100 /sys/devices/pci**/usb*/**/{uevent,report_descriptor} r,
+	priority=100 /sys/class/hidraw/hidraw* r,
+	priority=100 /dev/hidraw* rw,
+
+	# Things that I don't want chrome to use here anyway
+	deny /dev/video* r,
+	deny /sys/devices/system/node/** r,
+	deny /sys/devices/pci[0-9:.]*/**/descriptors r, # block any further android-debug checks
+	deny /sys/devices/**/uevent r, # these scans don't seem to be required
+
+	### Network
+	network tcp,
+	network udp,
+	network netlink raw, # tracks local netwok configuration
+
+	### Uses namespaces
+	userns,
 
 }
