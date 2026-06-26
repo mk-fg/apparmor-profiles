@@ -116,13 +116,14 @@ profile chromium {
 	signal (send) peer=chromium//glycin,
 
 
-	### crashpad_handler seem to be always run and required
+	### crashpad_handler seem to be always run and required, even if disabled/useless
 	/usr/lib/chromium/chrome_crashpad_handler cx -> crashpad,
 	profile crashpad flags=(attach_disconnected) {
 		#include <abstractions/base>
 		owner /proc/*/fd/ r,
 		/proc/sys/fs/nr_open r,
 		/usr/lib/chromium/chrome_crashpad_handler ix,
+		deny "@{HOME}/.config/chromium/Crash Reports/{,**}" rw,
 	}
 
 
