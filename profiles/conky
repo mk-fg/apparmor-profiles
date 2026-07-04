@@ -1,0 +1,51 @@
+#include <tunables/global>
+
+profile conky /usr/bin/conky {
+	#include <abstractions/base>
+	#include <abstractions/X>
+	#include <abstractions/fonts>
+	#include <abstractions/site/base>
+	#include <abstractions/site/de>
+
+	/etc/ssl/openssl.cnf r,
+
+	# Local script/config/data sources
+	owner @{HOME_GIT}/modules/de-setup/conky/* r,
+	owner /run/user/1000/*.conky r,
+
+	# Conky monitoring checks
+	/proc/ r,
+	/proc/{diskstats,loadavg,uptime} r,
+	/proc/@{pid}/{cmdline,io,mounts,stat} r,
+	/proc/@{pid}/net/{dev,if_inet6,route} r,
+	/sys/devices/pci**/net/*/address r,
+	/sys/devices/virtual/net/*/address r,
+
+	capability sys_ptrace, # ptraces itself
+	deny ptrace,
+	network udp, # DNS
+	network netlink raw, # local netwok configuration
+
+	# Lua runs "sensors -j" via system() hence shell subprofile
+	/usr/bin/bash cx -> lua_run,
+	/usr/bin/dash cx -> lua_run,
+	profile lua_run {
+		#include <abstractions/base>
+		/usr/bin/{b,d}ash rm,
+		/usr/bin/{b,d}ash cix,
+		/dev/tty rw,
+		/sys/class/power_supply/ r,
+		/usr/bin/sensors px -> conky//lua_run_sensors, # "cx" drops conky// prefix here
+	}
+	profile lua_run_sensors {
+		#include <abstractions/base>
+		/usr/bin/sensors rm,
+		/etc/sensors3.conf r,
+		/etc/sensors.d/ r,
+		/sys/bus/i2c/devices/ r,
+		/sys/class/hwmon/ r,
+		/sys/devices/pci**/i2c-*/name r,
+		/sys/devices/pci**/hwmon/hwmon*/{,*} r,
+	}
+
+}
