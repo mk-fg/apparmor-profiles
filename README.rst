@@ -31,7 +31,16 @@ I use apparmor_init_ script (under "scripts" dir) to load these profiles with
 some caching and "--override-policy-abi" option to avoid needing boilerplate
 for it in every file - they are intended to always work together anyway.
 
+Other parse-logs_ script there can be useful to compact, normalize and "sort -u"
+any profile violation or complain-mode lines from any place where audit log ends up
+(journal, syslog or auditd logs - using `audit-follow script fgtk repo`_),
+to easily add to profile in some way, without needing to visually pick out
+long often-repeated paths from noisy audit output.
+
 .. _apparmor_init: scripts/apparmor_init
+.. _parse-logs: scripts/parse-logs
+.. _audit-follow script fgtk repo: https://github.com/mk-fg/fgtk#hdr-audit-follow
+
 
 Important note
 --------------
@@ -51,6 +60,7 @@ Therefore it might be wise to only use these profiles for reference
 Some paths in profiles like @{HOME\_GIT} and @{SYS\_GIT} are specific to my
 systems (configuration git repos), and can/should be removed or updated to some
 other local paths.
+
 
 See also
 --------

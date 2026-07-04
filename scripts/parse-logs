@@ -1,14 +1,30 @@
 #!/usr/bin/env python
 
-import os, sys, re, pathlib as pl
+import os, sys, re, subprocess as sp, contextlib as cl
 
-def iter_log_lines(files):
-	if not files: yield from sys.stdin; return
-	for p in files:
-		with pl.Path(p).open() as src: yield from src
+def audit_iter_close(proc, wait=1, wait_base=0.3):
+	if not proc or proc.poll() is not None: return
+	close_ops = [proc.terminate, proc.kill]
+	if proc.stdin: close_ops = [proc.stdin.close] + close_ops
+	if isinstance(wait, (int, float)) and wait > 0:
+		wait = list(n*wait for n, func in enumerate(close_ops, 1))
+	wait = dict(enumerate(wait or list()))
+	for n, func in enumerate(close_ops):
+		with cl.suppress(OSError): func()
+		with cl.suppress(sp.TimeoutExpired):
+			proc.wait(wait.get(n, wait_base)); break
 
-def match_attr(name, line):
-	if m := re.search(name + r'="([^"]+)"', line): return m[1]
+def audit_iter_lines(files, audit_follow_script):
+	procs = list()
+	try:
+		if not files: af = sys.stdin
+		else:
+			procs.append(af := sp.Popen(['cat', *files], stdout=sp.PIPE))
+			af = af.stdout
+		procs.append(af := sp.Popen(['audit-follow', '--raw', '-i'], stdin=af, stdout=sp.PIPE))
+		for line in af.stdout: yield line.decode(errors='replace').strip()
+	finally:
+		for proc in procs: audit_iter_close(proc)
 
 def main(argv=None):
 	import argparse, textwrap
@@ -16,22 +32,44 @@ def main(argv=None):
 		textwrap.dedent(text).strip('\n') + '\n' ).replace('\t', '  ')
 	parser = argparse.ArgumentParser(
 		formatter_class=argparse.RawTextHelpFormatter,
-		usage='%(prog)s [opts] [[--] file...]',
-		description='Parse apparmor audit log lines'
-			' to something readable and suitable for "sort -u".')
+		usage='%(prog)s [opts] [[--] file...]', description=dd('''
+			Run audit-follow script (from mk-fg/fgtk repo) to parse some audit-log
+				source and produce simplified lines suitable for "sort -u" to make into rules.
+			audit-follow script can be found here: https://github.com/mk-fg/fgtk#hdr-audit-follow'''))
 	parser.add_argument('log_file', nargs='*',
 		help='File(s) with apparmor logging to process. None - use stdin.')
+	parser.add_argument('--audit-follow-script', metavar='cmd', default='audit-follow',
+		help='Command/path of audit-follow script to run. Default: %(default)s')
+	parser.add_argument('-e', '--compact-expr', action='append', metavar='pattern', help=dd('''
+		fnmatch-like wildcard pattern(s) to match against any field in the output
+			and replace wildcard with 3 same consecutive uppercase letters (e.g. NNN or XXX).
+		Repacement 3-caps-letters should be used instead of asterisks,
+			matching anything including slashes non-greedily. Can be used multiple times.
+		For example: /proc/NNN/ to replace /proc/105/stat or /proc/10466/io
+			with /proc/NNN/stat or /proc/NNN/io, to compact variables in same-pattern paths.'''))
 	opts = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
-	for line in iter_log_lines(opts.log_file):
-		# 2024-02-03T20:25:22.438729+05:00 kern.notice kernel[-]: [538406.040879]
-		#   audit: type=1400 audit(1706973922.437:997): apparmor="AUDIT" operation="getattr"
-		#   class="file" profile="chromium-wrapper//chromium" name="/sys/devices/virtual/dmi/id/"
-		#   pid=564554 comm="ThreadPoolForeg" requested_mask="r" fsuid=1000 ouid=0
-		if not ((m := re.search(
-			r'(?:^|\s)\[[ \d]+\.\d+\] audit: (.*)', line )) and (line := m[1])): continue
-		print(' '.join( (match_attr(k, line) or '-') for k in
-			'profile class operation name requested_mask'.split() ))
+	compacts, e_subs = ( list(), lambda m:
+		m[0] if len(m[0]) != 3 else (subs.append(m[0]) or '\uf68f') )
+	for e in opts.compact_expr or list():
+		subs = list()
+		e = re.sub(r'[A-Z]{3,}', e_subs, e)
+		compacts.append((re.compile(e.replace('\uf68f', '(.*?)')), subs))
+
+	def _match_attr(name, line):
+		if m := re.search(name + r'=(?:"([^"]+)"|(\S+))', line): return m[1] or m[2]
+	for line in audit_iter_lines(opts.log_file, opts.audit_follow_script):
+		# type=AVC apparmor=ALLOWED operation=open class="file"
+		#   profile=conky name=/some/file pid=15630 comm=conky
+		#   requested_mask=r denied_mask=r fsuid=fraggod ouid=fraggod
+		if not line.startswith('type=AVC '): continue
+		line = ' '.join( (_match_attr(k, line) or '-') for k in
+			'profile class operation name requested_mask'.split() )
+		for e, subs in compacts:
+			if not (m := e.search(line)): continue
+			for n, g in reversed(list(enumerate(m.groups()))):
+				line = line[:m.start(n+1)] + subs[n] + line[m.end(n+1):]
+		print(line)
 
 if __name__ == '__main__':
 	try: sys.exit(main())
