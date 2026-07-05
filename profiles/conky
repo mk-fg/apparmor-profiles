@@ -34,7 +34,8 @@ profile conky /usr/bin/conky {
 		/usr/bin/{b,d}ash rm,
 		/usr/bin/{b,d}ash cix,
 		/dev/tty rw,
-		/sys/class/power_supply/ r,
+		# io.popen('echo /sys/class/power_supply/*/', 'r') for power supply parameters
+		/sys/class/power_supply{/,**} r,
 		/usr/bin/sensors px -> conky//lua_run_sensors, # "cx" drops conky// prefix here
 	}
 	profile lua_run_sensors {
