@@ -47,7 +47,7 @@
 # [Install]
 # WantedBy=multi-user.target
 
-profile sng /usr/bin/syslog-ng {
+profile sng /usr/bin/syslog-ng flags=(attach_disconnected) {
 	/usr/bin/syslog-ng rm,
 	/usr/bin/syslog-ng ix,
 
@@ -67,6 +67,14 @@ profile sng /usr/bin/syslog-ng {
 	/etc/ssl/openssl.cnf r,
 	/usr/share/zoneinfo/** r,
 	/sys/devices/system/cpu/{online,possible} r,
+
+	# Python module also wants these
+	/etc/syslog-ng/python/{,**} r,
+	/etc/passwd r,
+	/run/systemd/userdb/{,**} r,
+	owner /proc/@{pid}/fd/* rw,
+	owner /proc/@{pid}/maps r,
+	/proc/sys/vm/overcommit_memory r,
 
 	# Sources
 	/run/log/journal/{,**} r,
