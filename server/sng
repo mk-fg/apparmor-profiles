@@ -1,0 +1,80 @@
+#include <tunables/global>
+
+## syslog-ng.conf intended to process systemd-journal() to /var/log/syslog
+## newusers <<< 'syslog::201:201:syslog daemon:/:/usr/bin/nologin'
+## Intended to be run from sng.service like this:
+# [Service]
+# Type=notify
+# User=syslog
+# Group=adm
+# ExecStartPre=+sh -c 'p=/var/spool/sng; \
+#   mkdir -p $p && chmod 700 $p && chown -R 201:201 $p \
+#   && ln -Tsf $p/ctl /run/syslog-ng.ctl'
+# ExecStart=syslog-ng -F \
+#   --control /var/spool/sng/ctl \
+#   --pidfile /var/spool/sng/pid \
+#   --persist-file /var/spool/sng/persist
+# ExecReload=+kill -HUP $MAINPID
+# Restart=on-failure
+#
+# ReadWritePaths=/var/spool/sng /var/log/syslog
+# RestrictAddressFamilies=AF_UNIX
+#
+# DynamicUser=yes
+# ProcSubset=pid
+# ProtectProc=invisible
+# ProtectHome=yes
+# PrivateDevices=yes
+# PrivateUsers=yes
+# SecureBits=noroot-locked
+# SystemCallFilter=@system-service
+# SystemCallFilter=~ @resources @privileged
+# SystemCallArchitectures=native
+#
+# UMask=0077
+# LockPersonality=yes
+# MemoryDenyWriteExecute=yes
+# ProtectClock=yes
+# ProtectKernelLogs=yes
+# ProtectControlGroups=yes
+# ProtectKernelModules=yes
+# ProtectHostname=yes
+# ProtectKernelTunables=yes
+# RestrictRealtime=yes
+# RestrictNamespaces=yes
+# CapabilityBoundingSet=
+#
+# [Install]
+# WantedBy=multi-user.target
+
+profile sng /usr/bin/syslog-ng {
+	/usr/bin/syslog-ng rm,
+	/usr/bin/syslog-ng ix,
+
+	/etc/syslog-ng/syslog-ng.conf r,
+	@{SYS_GIT}/sys/watch/sng.conf r, # local config git-dir
+	/var/spool/sng/* rwk, # local state-dir
+
+	/usr/lib/** rm,
+	/usr/share/syslog-ng/** r,
+
+	/etc/ld.so.* r,
+	/etc/machine-id r,
+	/etc/host.conf r,
+	/etc/hosts r,
+	/etc/nsswitch.conf r,
+	/etc/resolv.conf r,
+	/etc/ssl/openssl.cnf r,
+	/usr/share/zoneinfo/** r,
+	/sys/devices/system/cpu/{online,possible} r,
+
+	# Sources
+	/run/log/journal/{,**} r,
+	/var/log/journal/{,**} r,
+
+	# Destinations - local
+	/var/log/{syslog,processing}/** rwk,
+
+	signal (receive) peer=unconfined,
+	network unix, # /var/spool/sng/ctl + /run/systemd/notify
+}
