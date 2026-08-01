@@ -1,21 +1,29 @@
 #include <tunables/global>
 
-## syslog-ng.conf intended to process systemd-journal() to /var/log/syslog
+## syslog-ng.conf processing systemd-journal() to /var/log/syslog
 ## newusers <<< 'syslog::201:201:syslog daemon:/:/usr/bin/nologin'
-## Intended to be run from sng.service like this:
+## Intended to be run from unprivileged sng.service like this:
+#
+# [Unit]
+# StartLimitIntervalSec=2min
+# StartLimitBurst=5
+#
 # [Service]
 # Type=notify
 # User=syslog
 # Group=adm
+# SyslogIdentifier=%p
+#
 # ExecStartPre=+sh -c 'p=/var/spool/sng; \
-#   mkdir -p $p && chmod 700 $p && chown -R 201:201 $p \
-#   && ln -Tsf $p/ctl /run/syslog-ng.ctl'
-# ExecStart=syslog-ng -F \
-#   --control /var/spool/sng/ctl \
-#   --pidfile /var/spool/sng/pid \
-#   --persist-file /var/spool/sng/persist
-# ExecReload=+kill -HUP $MAINPID
+# 	mkdir -p $p && chmod 700 $p && chown -R 201:201 $p \
+# 	&& ln -Tsf $p/ctl /run/syslog-ng.ctl && ln -Tsf $p/pid /run/syslog-ng.pid'
+# ExecStart=stdbuf -oL syslog-ng -F \
+# 	--control /var/spool/sng/ctl --pidfile /var/spool/sng/pid \
+# 	--persist-file /var/spool/sng/persist
+# ExecReload=+pkill -HUP -F /run/syslog-ng.pid
+#
 # Restart=on-failure
+# RestartSec=2
 #
 # ReadWritePaths=/var/spool/sng /var/log/syslog
 # RestrictAddressFamilies=AF_UNIX
