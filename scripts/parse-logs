@@ -14,14 +14,16 @@ def audit_iter_close(proc, wait=1, wait_base=0.3):
 		with cl.suppress(sp.TimeoutExpired):
 			proc.wait(wait.get(n, wait_base)); break
 
-def audit_iter_lines(files, audit_follow_script):
+def audit_iter_lines(files, audit_follow_script, ts_from=None):
 	procs = list()
 	try:
 		if not files: af = sys.stdin
 		else:
 			procs.append(af := sp.Popen(['cat', *files], stdout=sp.PIPE))
 			af = af.stdout
-		procs.append(af := sp.Popen(['audit-follow', '--raw', '-i'], stdin=af, stdout=sp.PIPE))
+		cmd = ['audit-follow', '--raw', '-i']
+		if ts_from: cmd.extend(['--ts-from', ts_from])
+		procs.append(af := sp.Popen(cmd, stdin=af, stdout=sp.PIPE))
 		for line in af.stdout: yield line.decode(errors='replace').strip()
 	finally:
 		for proc in procs: audit_iter_close(proc)
@@ -40,6 +42,9 @@ def main(argv=None):
 		help='File(s) with apparmor logging to process. None - use stdin.')
 	parser.add_argument('--audit-follow-script', metavar='cmd', default='audit-follow',
 		help='Command/path of audit-follow script to run. Default: %(default)s')
+	parser.add_argument('-f', '--ts-from', metavar='time', help=dd('''
+		Only check audit records after specifed time.
+		Passed through as-is to same option in audit-follow script.'''))
 	parser.add_argument('-e', '--compact-expr', action='append', metavar='pattern', help=dd('''
 		fnmatch-like wildcard pattern(s) to match against any field in the output
 			and replace wildcard with 3 same consecutive uppercase letters (e.g. NNN or XXX).
@@ -58,7 +63,8 @@ def main(argv=None):
 
 	def _match_attr(name, line):
 		if m := re.search(name + r'=(?:"([^"]+)"|(\S+))', line): return m[1] or m[2]
-	for line in audit_iter_lines(opts.log_file, opts.audit_follow_script):
+	for line in audit_iter_lines( opts.log_file,
+			opts.audit_follow_script, ts_from=opts.ts_from ):
 		# type=AVC apparmor=ALLOWED operation=open class="file"
 		#   profile=conky name=/some/file pid=15630 comm=conky
 		#   requested_mask=r denied_mask=r fsuid=fraggod ouid=fraggod

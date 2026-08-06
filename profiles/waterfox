@@ -52,7 +52,7 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	owner /proc/@{pid}/{cgroup,mountinfo,statm,smaps} r,
 	/proc/@{pid}/net/arp r,
 	/proc/@{pid}/{setgroups,uid_map,gid_map} rw,
-	deny /proc/[0-9]*/oom_{,score_}adj rw,
+	deny /proc/@{pid}/oom_{,score_}adj rw,
 	deny /sys/fs/cgroup/**/cpu.max r,
 
 	owner /run/user/[0-9]*/dconf/user rw,
