@@ -91,6 +91,8 @@ profile sng /usr/bin/syslog-ng flags=(attach_disconnected) {
 	# Destinations - local
 	/var/log/{syslog,processing}/** rwk,
 
-	signal (receive) peer=unconfined,
+	signal receive peer=unconfined,
+	signal receive peer=pkill,
+	ptrace readby,
 	network unix, # /var/spool/sng/ctl + /run/systemd/notify
 }

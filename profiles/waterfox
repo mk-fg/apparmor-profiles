@@ -36,8 +36,8 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	deny capability sys_ptrace,
 	deny /etc/os-release r, # probably just to display somewhere
 
-	signal (receive) peer=unconfined,
-	deny signal (send) peer=unconfined,
+	signal receive peer=unconfined,
+	deny signal send peer=unconfined,
 
 	owner @{HOME}/.waterfox/{,**} rwkm,
 
@@ -152,9 +152,9 @@ profile waterfox /usr/lib/waterfox/waterfox flags=(attach_disconnected) {
 	/usr/lib/glycin-loaders/2+/glycin-* cx -> glycin,
 	profile glycin {
 		#include <abstractions/base>
-		signal (send) peer=waterfox,
-		signal (receive) peer=waterfox,
+		signal send peer=waterfox,
+		signal receive peer=waterfox,
 	}
-	signal (send) peer=waterfox//glycin,
+	signal send peer=waterfox//glycin,
 
 }

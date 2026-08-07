@@ -21,8 +21,10 @@ profile conky /usr/bin/conky {
 	/sys/devices/pci**/net/*/address r,
 	/sys/devices/virtual/net/*/address r,
 
-	capability sys_ptrace, # ptraces itself
-	deny ptrace,
+	capability sys_ptrace,
+	ptrace read, # required by /proc/<pid>/stat checks
+	# See also https://gitlab.com/apparmor/apparmor/-/wikis/TechnicalDoc_Proc_and_ptrace
+
 	network udp, # DNS
 	network netlink raw, # local netwok configuration
 

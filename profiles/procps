@@ -6,14 +6,19 @@ profile pgrep /usr/bin/pgrep {
 	/etc/ld.so.* r,
 	/usr/share/locale/** r,
 
-	capability sys_ptrace,
-	deny ptrace,
+	capability sys_ptrace dac_read_search,
+	ptrace read, # required for /proc/<pid>/environ
 	/proc/tty/drivers r,
 	/sys/devices/system/{node,cpu/possible} r,
 
 	/proc/ r,
 	/proc/self/status r,
 	/proc/@{pid}/{,**} r,
+
+	# pgrep -F <pidfile>
+	/tmp/**.pid r,
+	/run/**.pid r,
+	/var/spool/**/pid r,
 }
 
 profile pkill /usr/bin/pkill {
@@ -22,8 +27,8 @@ profile pkill /usr/bin/pkill {
 	/etc/ld.so.* r,
 	/usr/share/locale/** r,
 
-	capability sys_ptrace,
-	deny ptrace,
+	capability sys_ptrace dac_read_search kill,
+	ptrace read, # required for /proc/<pid>/environ
 	/proc/tty/drivers r,
 	/sys/devices/system/{node,cpu/possible} r,
 
@@ -31,5 +36,10 @@ profile pkill /usr/bin/pkill {
 	/proc/self/status r,
 	/proc/@{pid}/{,**} r,
 
-	signal (send),
+	signal send,
+
+	# pkill -F <pidfile>
+	/tmp/**.pid r,
+	/run/**.pid r,
+	/var/spool/**/pid r,
 }

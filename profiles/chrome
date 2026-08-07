@@ -32,8 +32,8 @@ profile chromium {
 
 	# sandbox/linux/services/namespace_sandbox.cc credentials.cc
 	capability sys_admin sys_chroot sys_ptrace,
-	signal (receive) peer=unconfined,
-	deny signal (send) peer=unconfined,
+	signal receive peer=unconfined,
+	deny signal send peer=unconfined,
 	/proc/sys/kernel/yama/ptrace_scope r,
 	deny ptrace, # triggers on xdg handlers
 
@@ -110,10 +110,10 @@ profile chromium {
 
 		# glycin cannot use px/cx due to PR_SET_NO_NEW_PRIVS from bwrap
 		/usr/lib/glycin-loaders/2+/glycin-* ix,
-		signal (send) peer=chromium,
-		signal (receive) peer=chromium,
+		signal send peer=chromium,
+		signal receive peer=chromium,
 	}
-	signal (send) peer=chromium//glycin,
+	signal send peer=chromium//glycin,
 
 
 	### crashpad_handler seem to be always run and required, even if disabled/useless
