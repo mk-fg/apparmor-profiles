@@ -16,9 +16,8 @@ profile pgrep /usr/bin/pgrep {
 	/proc/@{pid}/{,**} r,
 
 	# pgrep -F <pidfile>
-	/tmp/**.pid r,
-	/run/**.pid r,
-	/var/spool/**/pid r,
+	/**.pid r,
+	/**/pid r,
 }
 
 profile pkill /usr/bin/pkill {
@@ -39,7 +38,6 @@ profile pkill /usr/bin/pkill {
 	signal send,
 
 	# pkill -F <pidfile>
-	/tmp/**.pid r,
-	/run/**.pid r,
-	/var/spool/**/pid r,
+	/**.pid r,
+	/**/pid r,
 }
