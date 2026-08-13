@@ -7,7 +7,7 @@ profile pgrep /usr/bin/pgrep {
 	/usr/share/locale/** r,
 
 	capability sys_ptrace dac_read_search,
-	ptrace read, # required for /proc/<pid>/environ
+	ptrace (read,readby), # reads for /proc/<pid>/environ
 	/proc/tty/drivers r,
 	/sys/devices/system/{node,cpu/possible} r,
 
@@ -27,7 +27,7 @@ profile pkill /usr/bin/pkill {
 	/usr/share/locale/** r,
 
 	capability sys_ptrace dac_read_search kill,
-	ptrace read, # required for /proc/<pid>/environ
+	ptrace (read,readby), # reads for /proc/<pid>/environ
 	/proc/tty/drivers r,
 	/sys/devices/system/{node,cpu/possible} r,
 
