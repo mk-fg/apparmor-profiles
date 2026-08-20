@@ -29,7 +29,7 @@
 # RestrictAddressFamilies=AF_UNIX
 #
 # DynamicUser=yes
-# ProcSubset=pid
+# #ProcSubset=pid - needs boot_id for sd-journal match-boot
 # ProtectProc=invisible
 # ProtectHome=yes
 # PrivateDevices=yes
@@ -75,6 +75,7 @@ profile sng /usr/bin/syslog-ng flags=(attach_disconnected) {
 	/etc/ssl/openssl.cnf r,
 	/usr/share/zoneinfo/** r,
 	/sys/devices/system/cpu/{online,possible} r,
+	/proc/sys/kernel/random/boot_id r,
 
 	# Python module also wants these
 	/etc/syslog-ng/python/{,**} r,
