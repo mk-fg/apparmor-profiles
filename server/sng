@@ -22,11 +22,16 @@
 # 	--persist-file /var/spool/sng/persist
 # ExecReload=+pkill -HUP -F /run/syslog-ng.pid
 #
+# TimeoutStopSec=5
 # Restart=on-failure
 # RestartSec=2
 #
 # ReadWritePaths=/var/spool/sng /var/log/syslog
 # RestrictAddressFamilies=AF_UNIX
+#
+# ## For remote-only logging instead
+# # ReadWritePaths=/var/spool/sng
+# # RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 #
 # DynamicUser=yes
 # #ProcSubset=pid - needs boot_id for sd-journal match-boot
@@ -61,7 +66,7 @@ profile sng /usr/bin/syslog-ng flags=(attach_disconnected) {
 
 	/etc/syslog-ng/syslog-ng.conf r,
 	@{SYS_GIT}/sys/watch/sng.conf r, # local config git-dir
-	/var/spool/sng/* rwk, # local state-dir
+	/var/spool/sng/{,*} rwk, # local state-dir
 
 	/usr/lib/** rm,
 	/usr/share/syslog-ng/** r,
@@ -85,15 +90,20 @@ profile sng /usr/bin/syslog-ng flags=(attach_disconnected) {
 	owner /proc/@{pid}/maps r,
 	/proc/sys/vm/overcommit_memory r,
 
-	# Sources
-	/run/log/journal/{,**} r,
-	/var/log/journal/{,**} r,
-
-	# Destinations - local
-	/var/log/{syslog,processing}/** rwk,
-
 	signal receive peer=unconfined,
 	signal receive peer=pkill,
 	ptrace readby,
 	network unix, # /var/spool/sng/ctl + /run/systemd/notify
+
+	# Sources
+	/run/log/journal/{,**} r,
+	/var/log/journal/{,**} r,
+
+	# Destinations for remote logging
+	network peer=(ip=10.16.0.1 port=9150),
+	network peer=(ip=10.0.10.1 port=9150),
+	network peer=(ip=fd10::1 port=9150),
+
+	# Destinations - local dirs
+	/var/log/{syslog,processing}/** rwk,
 }
